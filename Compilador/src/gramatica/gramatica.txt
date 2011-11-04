@@ -1,0 +1,294 @@
+%{
+package compilador;
+import compilador.AnalizadorLexico;
+import compilador.Token;
+import compilador.Entrada;
+import java.util.Vector;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+%}
+
+%token  IF  THEN  ELSE  ID  CTE_INT  FOR  PRINT  CADENA  ULONGINT  INTEGER  ASIGN  COMP_IGUAL  COMP_MENOR_IGUAL  COMP_MAYOR_IGUAL  COMP_DISTINTO  BEGIN  END  STRUCT  CTE_ULON
+%start programa
+%left '-' '+'
+%left '*' '/'
+
+%%
+
+programa :
+	  bloque_declaracion  {yyout("PROGRAMA.");}
+	 | bloque_declaracion bloque_sentencias  {yyout("PROGRAMA.");}
+	 | bloque_sentencias  {yyout("PROGRAMA.");}
+
+;
+
+bloque_declaracion: declaracion  {yyout("declaración.");}
+		  | bloque_declaracion  declaracion   {yyout("Bloque de declaraciones.");}
+;
+
+bloque_sentencias: conjunto_sentencias {yyout("Bloque de sentencias.");}
+
+;
+
+declaracion : tipo lista_variables ';' {
+                                         for (int i=0;i<this.identificadores.size();i++) {
+                                             this.identificadores.get(i).setTipo_dato(this.tipo_dato);
+                                         }
+                                         this.tipo_dato = null;
+                                         this.identificadores.clear();
+                                       }
+            | estructura ID ';' {    // Recupero la tabla de símbolos
+                                  TablaSimbolos t = anaLex.getTablaSimbolos();
+                                  // Recupero la entrada de la estructura padre
+                                  Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
+                                  padre.setTipo_dato(Tipo.STRUCT);
+                                  int distancia_acumulada = 0;
+                                  for (int i=0;i<elemento_estructuras.size();i++) {
+                                      Entrada e = t.get(elemento_estructuras.get(i));
+                                      t.removeEntrada(e.getNombre());
+                                      Entrada eNueva = new EntradaEstructura(e.getNombre(), e.getTipo(), e.getValor(),padre,distancia_acumulada);
+                                      eNueva.setTipo_dato(e.getTipo_dato());
+                                      t.addNuevaEntrada(eNueva);
+                                      // Actualizo la distancia
+                                      if (e.getTipo_dato()==Tipo.INTEGER)
+                                          distancia_acumulada = distancia_acumulada + 2;
+                                      else if (e.getTipo_dato()==Tipo.ULONGINT)
+                                          distancia_acumulada = distancia_acumulada + 4;
+                                  }}
+
+            | tipo  ';' { yyerror("falta nombre de variable en declaración.");}
+            | estructura ';' {yyerror("falta nombre de la estructura en declaración.");}
+            | estructura ID ',' lista_variables ';' {yyerror("declaración múltiple en estructuras está prohibida.");}
+            | lista_variables ';'  { yyerror("declaración de variable sin tipo definido.");}
+            | tipo lista_variables  { yyerror("se esperaba ';'.");}
+            | estructura ID { yyerror("se esperaba ';'.");}
+;
+
+tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
+     | ULONGINT {this.tipo_dato=Tipo.ULONGINT;}
+     | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
+;
+
+estructura : STRUCT {yyout("Sentencia de declaración de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
+;
+
+cuerpo_estructura : tipo ID ';' {
+                                      setearTipoElementosEstructuras((Entrada)$2.obj);
+                                }
+		  | tipo ID ';' {
+                                      setearTipoElementosEstructuras((Entrada)$2.obj);
+                                } cuerpo_estructura
+
+                  | tipo ID { yyerror("se esperaba ';'.");}
+		  | tipo ID cuerpo_estructura { yyerror("se esperaba ';'.");}
+;
+
+lista_variables : ID {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
+                | ID ',' lista_variables {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
+;
+
+bloque : sentencia   {yyout("Una sola sentencia.");}
+       | BEGIN conjunto_sentencias END {yyout("Bloque de sentencias.");}
+       | conjunto_sentencias END { yyerror("se esperaba un 'begin' al inicio de un bloque de sentencias ejecutables.");}
+       | BEGIN conjunto_sentencias { yyerror("se esperaba un 'end' al final de un bloque de sentencias ejecutables.");}
+;
+
+conjunto_sentencias : sentencia
+                    | sentencia conjunto_sentencias
+;
+
+sentencia : seleccion
+          | bucle
+          | impresion
+          | asignacion
+;
+
+
+seleccion : IF condicion  THEN bloque ELSE bloque ';'  {yyout("Condicional.");}
+
+          | IF condicion error bloque ELSE bloque ';'  { yyerror("se esperaba un 'then'.");}
+          | IF condicion THEN bloque error bloque ';' { yyerror("se esperaba un 'else'.");}
+          | IF error THEN bloque ELSE bloque ';'  { yyerror("la condición de selección no es válida.");}
+;
+
+condicion :  '(' expresion comparador expresion ')'
+
+          | expresion comparador expresion ')' { yyerror("se esperaba '(' antes de la condición.");}
+          | '(' error comparador expresion ')'        { yyerror("se esperaba una expresion antes del comparador.");}
+          | '(' expresion error expresion ')'        { yyerror("se esperaba un comparador válido.");}
+          | '(' expresion comparador error ')'        { yyerror("se esperaba una expresion después del comparador");}
+          | '(' expresion comparador expresion  error  { yyerror("se esperaba ')' después de la condición.");}
+;
+
+comparador : '>'
+           | '<'
+           | COMP_IGUAL
+           | COMP_DISTINTO
+           | COMP_MENOR_IGUAL
+           | COMP_MAYOR_IGUAL
+;
+
+expresion : expresion '+' termino {yyout("Sentencia de suma.");}
+          | expresion '-' termino {yyout("Sentencia de resta.");}
+          | termino
+
+          | expresion '+'  { yyerror("se esperaba un termino luego del '+'.");}
+          | expresion '-'   { yyerror("se esperaba un termino luego del '-'.");}
+
+;
+
+asignacion : ID ASIGN expresion ';' {yyout("ASIGNACION."); }
+           | elemento_estructura ASIGN expresion ';'    {yyout("Asignacion a elemento de estructura.");}
+
+           | ID  expresion ';'    { yyerror("se esperaba el operador de asignación ':='.");}
+           | ID ASIGN  ';'        { yyerror("se esperaba una expresión del lado derecho de la asignación.");}
+           | ID ASIGN expresion error { yyerror("se esperaba ';'.");}
+;
+
+termino : termino '*' factor {yyout("Sentencia de producto.");}
+        | termino '/' factor {yyout("Sentencia de división.");}
+        | factor
+
+        | termino '*'   { yyerror("se esperaba un factor luego de '*'.");}
+        | termino '/'   { yyerror("se esperaba un factor luego de '/'.");}
+;
+
+factor : factor_for
+       | elemento_estructura
+;
+
+elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");}
+
+                    | ID ID    { yyerror("se esperaba un punto.");}
+                    | ID '.'   { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
+                    | '.' ID   { yyerror("se esperaba identificador de la estructura antes del punto.");}
+;
+
+bucle :  FOR condicion_for bloque ';'   {yyout("Bucle for.");}
+
+      | FOR condicion_for ';' {yyerror("se esperaba un bloque de sentencias, pero se encontro ';'.");}
+      | FOR condicion_for bloque error  { yyerror("se esperaba ';'.");}
+;
+
+condicion_for : '(' ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for ')'
+
+              | ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for ')'    { yyerror("se esperaba '(' antes de la condición.");}
+              | '(' ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for ')'     { yyerror("se esperaba un identificador antes del operador de asignación.");}
+              | '(' ID ASIGN ';' factor_for '>' factor_for ';' factor_for ')'     { yyerror("se esperaba un identificador o constante despues del operador de asignación.");}
+              | '(' ID ASIGN factor_for ';' '>' factor_for ';' factor_for ')'     { yyerror("se esperaba un identificador o constante antes de '>'.");}
+              | '(' ID ASIGN factor_for ';' factor_for '>' ';' factor_for ')'     { yyerror("se esperaba un identificador o constante despues '>'.");}
+              | '(' ID ASIGN factor_for ';' factor_for '>' factor_for ';' ')'     { yyerror("se esperaba un identificador o constante despues de ';'.");}
+
+              | '(' ID error factor_for ';' factor_for '>' factor_for ';' factor_for ')'    { yyerror("se esperaba operador de asignación.");}
+              | '(' ID ASIGN factor_for error factor_for '>' factor_for ';' factor_for ')'  { yyerror("se esperaba ';'.");}
+              | '(' ID ASIGN factor_for ';' factor_for error { yyerror("se esperaba '>'.");} factor ';' factor ')'
+              | '(' ID ASIGN factor_for ';' factor_for '>' factor_for error factor_for ')'  { yyerror("se esperaba ';'.");}
+              | '(' ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for error   { yyerror("se esperaba ')' despues de la condición.");}
+              | error {yyerror("error en la sentencia for.");}
+;
+
+
+factor_for : ID
+           | CTE_ULON
+           | CTE_INT       { anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()).visitar(); if (fueraRangoIntPositivo((Entrada)$1.obj)) yyerror("entero fuera de rango [-32768;32767]");}
+           | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
+    				if (!(actual).isVisitado()) {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+        			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
+    				} else {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+ 				}
+			    }
+;
+
+impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresión.");}
+
+          | '(' CADENA ')' ';' { yyerror("se esperaba 'print'");}
+          | PRINT '(' ')' ';' { yyerror("se esperaba una cadena dentro de la instrucción print.");}
+          | PRINT CADENA ')' ';' { yyerror("se esperaba '(' antes de la cadena en sentencia print.");}
+          | PRINT '(' CADENA ';' { yyerror("sentencia print sin parentesis de cierre.");}
+
+          | PRINT '(' CADENA ')' error { yyerror("se esperaba ';.'");}
+;
+
+%%
+
+private AnalizadorLexico anaLex;
+private Vector<String> errores;
+private Vector<String> tokens;
+private Vector<String> salida;
+private Vector<String> elemento_estructuras;
+private String error_anterior;
+private int linea_error_anterior;
+
+// para manejo de los tipos de datos
+private Tipo tipo_dato;
+private Vector<Entrada> identificadores = new Vector<Entrada>();
+
+
+public static final int MAX_INTEGER_NEG = 32767;
+public static final int MAX_INTEGER = 32768;
+public static final float MAX_ULONGINTEGER = 4294967295f;
+
+public Parser(AnalizadorLexico analLex){
+  anaLex=analLex;
+  error_anterior = "";
+  errores = new Vector<String>();
+  tokens = new Vector<String>();
+  salida = new Vector<String>();
+}
+
+int yylex() {
+        Token t = this.anaLex.getToken();
+        tokens.add(t.getNombre());
+        yylval = t.getAtributoYacc();
+        return t.getCodigoYacc();
+}
+
+void yyout(String texto) {
+  salida.add("En linea " + anaLex.getNumeroLinea() + " " + texto);
+
+}
+
+void yyerror(String texto) {
+     if(!texto.equals("syntax error"))
+          errores.add("En linea: " + anaLex.getNumeroLinea() + " se encontro el error: " + texto);
+     else{
+         if(error_anterior.equals(texto))
+              errores.add("En linea: " + linea_error_anterior + " ocurrio un error sintactico");
+     }
+     linea_error_anterior = anaLex.getNumeroLinea();
+     error_anterior = texto;
+}
+
+Vector<String> getErrores(){
+	return this.errores;
+}
+
+Vector<String> getTokens(){
+        return this.tokens;
+}
+
+Vector<String> getSalida(){
+   Vector<String> retorno = new Vector<String>();
+   retorno.add("Analizador léxico: ");
+   retorno.addAll(this.tokens);
+   retorno.add("Analizador sintáctico: ");
+   retorno.addAll(this.salida);
+   return retorno;
+}
+
+boolean fueraRangoIntPositivo(Entrada e){
+    int val = (Integer) (e.getValor());
+    return ((0 <= val) && (val > MAX_INTEGER-1));
+}
+
+void setearTipoElementosEstructuras(Entrada e) {
+    elemento_estructuras.add(e.getNombre());
+    e = anaLex.getTablaSimbolos().get(e.getNombre());
+    e.setTipo_dato(this.tipo_dato);
+    this.tipo_dato = null;
+}
