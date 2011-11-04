@@ -6,7 +6,7 @@ package compilador;
 
 /**
  *
- * @author José Ignacio Orlando
+ * @author JosÃ© Ignacio Orlando
  */
 public class Token {
     
@@ -27,7 +27,7 @@ public class Token {
         return "Token " + nombre + codigoYacc;
     }
     
-    public AnalizadorSintacticoVal getAtributoYacc() {
+    public ParserVal getAtributoYacc() {
         return null;
     }
     
