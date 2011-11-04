@@ -8,13 +8,13 @@ import java.util.Vector;
 
 /**
  *
- * @author José Ignacio Orlando
+ * @author JosÃ© Ignacio Orlando
  */
 public class Compilador {
     
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
-    private AnalizadorSintactico analSint;
+    private Parser analSint;
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -22,12 +22,12 @@ public class Compilador {
     
     public String compilar(Archivo arch) {
         this.analLex = new AnalizadorLexico(arch, this.tablaSimbolos);
-        this.analSint = new AnalizadorSintactico(this.analLex);
-        // se corre la compilación
+        this.analSint = new Parser(this.analLex);
+        // se corre la compilaciÃ³n
         //try{
             this.analSint.run();
             Vector<String> salida = new Vector<String>();
-            salida.add("Compilando código fuente");
+            salida.add("Compilando cÃ³digo fuente");
             salida.add("---------------------------------");
             salida.addAll(this.analSint.getSalida());
             String out = "";
@@ -49,13 +49,13 @@ public class Compilador {
         Vector<String> salida = new Vector<String>();
         Vector<String> erroresLexicos = this.analLex.getErrores();
         if (!erroresLexicos.isEmpty()) {
-            salida.add("ERRORES LÉXICOS:");
+            salida.add("ERRORES LÃ‰XICOS:");
             salida.addAll(erroresLexicos);
         }
         salida.add("---------------------------------");
         Vector<String> erroresSintacticos = this.analSint.getErrores(); // harcodeo
         if (!erroresSintacticos.isEmpty()) {
-            salida.add("ERRORES SINTÁCTICOS:");
+            salida.add("ERRORES SINTÃCTICOS:");
             salida.addAll(erroresSintacticos);
         }
         String out = "";
