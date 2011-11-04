@@ -57,8 +57,9 @@ public class Entrada {
     public String toString() {
         String retorno = "";
         if (this.tipo_token!=null) {
-            retorno = retorno + "Tipo: " + tipo_token.toString();
+            retorno = retorno + "Tipo de token: " + tipo_token.toString();
         }
+        retorno = retorno + " - Tipo de dato: " + tipo_dato;
         if (this.valor!=null) {
             retorno = retorno + " - Valor: " + valor.toString();
         }
