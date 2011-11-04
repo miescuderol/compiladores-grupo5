@@ -620,9 +620,9 @@ Vector<String> getTokens(){
 
 Vector<String> getSalida(){
    Vector<String> retorno = new Vector<String>();
-   retorno.add("Analizador léxico: ");
+   retorno.add("Analizador lÃ©xico: ");
    retorno.addAll(this.tokens);
-   retorno.add("Analizador sintáctico: ");
+   retorno.add("Analizador sintÃ¡ctico: ");
    retorno.addAll(this.salida);
    return retorno;
 }
@@ -635,7 +635,7 @@ boolean fueraRangoIntPositivo(Entrada e){
 void setearTipoElementosEstructuras(Entrada e) {
     elemento_estructuras.add(e.getNombre());
     e = anaLex.getTablaSimbolos().get(e.getNombre());
-    e.setTipo_dato(this.tipo_dato);
+    e.setTipo_dato(tipo_dato);
     this.tipo_dato = null;
 }
 //#line 570 "Parser.java"
@@ -806,7 +806,7 @@ case 3:
 break;
 case 4:
 //#line 26 "gramatica.txt"
-{yyout("declaración.");}
+{yyout("declaraciÃ³n.");}
 break;
 case 5:
 //#line 27 "gramatica.txt"
@@ -828,15 +828,17 @@ case 7:
 break;
 case 8:
 //#line 41 "gramatica.txt"
-{    /* Recupero la tabla de símbolos*/
+{    /* Recupero la tabla de sÃ­mbolos*/
                                   TablaSimbolos t = anaLex.getTablaSimbolos();
                                   /* Recupero la entrada de la estructura padre*/
                                   Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
                                   int distancia_acumulada = 0;
                                   for (int i=0;i<elemento_estructuras.size();i++) {
                                       Entrada e = t.get(elemento_estructuras.get(i));
+                                      padre.setTipo_dato(Tipo.STRUCT);
                                       t.removeEntrada(e.getNombre());
                                       Entrada eNueva = new EntradaEstructura(e.getNombre(), e.getTipo(), e.getValor(),padre,distancia_acumulada);
+                                      eNueva.setTipo_dato(e.getTipo_dato());
                                       t.addNuevaEntrada(eNueva);
                                       /* Actualizo la distancia*/
                                       if (e.getTipo_dato()==Tipo.INTEGER)
@@ -847,19 +849,19 @@ case 8:
 break;
 case 9:
 //#line 58 "gramatica.txt"
-{ yyerror("falta nombre de variable en declaración.");}
+{ yyerror("falta nombre de variable en declaraciÃ³n.");}
 break;
 case 10:
 //#line 59 "gramatica.txt"
-{yyerror("falta nombre de la estructura en declaración.");}
+{yyerror("falta nombre de la estructura en declaraciÃ³n.");}
 break;
 case 11:
 //#line 60 "gramatica.txt"
-{yyerror("declaración múltiple en estructuras está prohibida.");}
+{yyerror("declaraciÃ³n mÃºltiple en estructuras estÃ¡ prohibida.");}
 break;
 case 12:
 //#line 61 "gramatica.txt"
-{ yyerror("declaración de variable sin tipo definido.");}
+{ yyerror("declaraciÃ³n de variable sin tipo definido.");}
 break;
 case 13:
 //#line 62 "gramatica.txt"
@@ -883,7 +885,7 @@ case 17:
 break;
 case 18:
 //#line 71 "gramatica.txt"
-{yyout("Sentencia de declaración de estructura"); elemento_estructuras = new Vector<String>();}
+{yyout("Sentencia de declaraciÃ³n de estructura"); elemento_estructuras = new Vector<String>();}
 break;
 case 20:
 //#line 74 "gramatica.txt"
@@ -943,11 +945,11 @@ case 39:
 break;
 case 40:
 //#line 110 "gramatica.txt"
-{ yyerror("la condición de selección no es válida.");}
+{ yyerror("la condiciÃ³n de selecciÃ³n no es vÃ¡lida.");}
 break;
 case 42:
 //#line 115 "gramatica.txt"
-{ yyerror("se esperaba '(' antes de la condición.");}
+{ yyerror("se esperaba '(' antes de la condiciÃ³n.");}
 break;
 case 43:
 //#line 116 "gramatica.txt"
@@ -955,15 +957,15 @@ case 43:
 break;
 case 44:
 //#line 117 "gramatica.txt"
-{ yyerror("se esperaba un comparador válido.");}
+{ yyerror("se esperaba un comparador vÃ¡lido.");}
 break;
 case 45:
 //#line 118 "gramatica.txt"
-{ yyerror("se esperaba una expresion después del comparador");}
+{ yyerror("se esperaba una expresion despuÃ©s del comparador");}
 break;
 case 46:
 //#line 119 "gramatica.txt"
-{ yyerror("se esperaba ')' después de la condición.");}
+{ yyerror("se esperaba ')' despuÃ©s de la condiciÃ³n.");}
 break;
 case 53:
 //#line 130 "gramatica.txt"
@@ -991,11 +993,11 @@ case 59:
 break;
 case 60:
 //#line 142 "gramatica.txt"
-{ yyerror("se esperaba el operador de asignación ':='.");}
+{ yyerror("se esperaba el operador de asignaciÃ³n ':='.");}
 break;
 case 61:
 //#line 143 "gramatica.txt"
-{ yyerror("se esperaba una expresión del lado derecho de la asignación.");}
+{ yyerror("se esperaba una expresiÃ³n del lado derecho de la asignaciÃ³n.");}
 break;
 case 62:
 //#line 144 "gramatica.txt"
@@ -1007,7 +1009,7 @@ case 63:
 break;
 case 64:
 //#line 148 "gramatica.txt"
-{yyout("Sentencia de división.");}
+{yyout("Sentencia de divisiÃ³n.");}
 break;
 case 66:
 //#line 151 "gramatica.txt"
@@ -1047,15 +1049,15 @@ case 76:
 break;
 case 78:
 //#line 174 "gramatica.txt"
-{ yyerror("se esperaba '(' antes de la condición.");}
+{ yyerror("se esperaba '(' antes de la condiciÃ³n.");}
 break;
 case 79:
 //#line 175 "gramatica.txt"
-{ yyerror("se esperaba un identificador antes del operador de asignación.");}
+{ yyerror("se esperaba un identificador antes del operador de asignaciÃ³n.");}
 break;
 case 80:
 //#line 176 "gramatica.txt"
-{ yyerror("se esperaba un identificador o constante despues del operador de asignación.");}
+{ yyerror("se esperaba un identificador o constante despues del operador de asignaciÃ³n.");}
 break;
 case 81:
 //#line 177 "gramatica.txt"
@@ -1071,7 +1073,7 @@ case 83:
 break;
 case 84:
 //#line 181 "gramatica.txt"
-{ yyerror("se esperaba operador de asignación.");}
+{ yyerror("se esperaba operador de asignaciÃ³n.");}
 break;
 case 85:
 //#line 182 "gramatica.txt"
@@ -1087,7 +1089,7 @@ case 88:
 break;
 case 89:
 //#line 185 "gramatica.txt"
-{ yyerror("se esperaba ')' despues de la condición.");}
+{ yyerror("se esperaba ')' despues de la condiciÃ³n.");}
 break;
 case 90:
 //#line 186 "gramatica.txt"
@@ -1112,7 +1114,7 @@ case 94:
 break;
 case 95:
 //#line 205 "gramatica.txt"
-{yyout("Sentencia de impresión.");}
+{yyout("Sentencia de impresiÃ³n.");}
 break;
 case 96:
 //#line 207 "gramatica.txt"
@@ -1120,7 +1122,7 @@ case 96:
 break;
 case 97:
 //#line 208 "gramatica.txt"
-{ yyerror("se esperaba una cadena dentro de la instrucción print.");}
+{ yyerror("se esperaba una cadena dentro de la instrucciÃ³n print.");}
 break;
 case 98:
 //#line 209 "gramatica.txt"
