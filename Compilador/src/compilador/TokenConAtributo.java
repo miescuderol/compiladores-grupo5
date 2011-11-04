@@ -23,8 +23,8 @@ public class TokenConAtributo extends Token {
     
     
     @Override
-    public AnalizadorSintacticoVal getAtributoYacc() {
-        return new AnalizadorSintacticoVal(this.entradaTablaSimbolos);
+    public ParserVal getAtributoYacc() {
+        return new ParserVal(this.entradaTablaSimbolos);
     }
     
     @Override
