@@ -6,7 +6,7 @@ package compilador;
 
 /**
  *
- * @author José Ignacio Orlando
+ * @author JosÃ© Ignacio Orlando
  */
 public enum Tipo {
         INTEGER, 
@@ -14,5 +14,6 @@ public enum Tipo {
         CADENA,
         CONSTANTE_INTEGER,
         CONSTANTE_ULONGINT,
-        ID;
+        ID,
+        STRUCT;
     };
