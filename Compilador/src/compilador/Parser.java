@@ -612,41 +612,45 @@ void yyerror(String texto) {
      error_anterior = texto;
 }
 
-Vector<String> getErrores(){
+public Vector<String> getErrores(){
 	return this.errores;
 }
 
-Vector<String> getTokens(){
+public Vector<String> getTokens(){
         return this.tokens;
 }
 
-Vector<String> getSalida(){
+public Vector<String> getSalida(){
    Vector<String> retorno = new Vector<String>();
-   retorno.add("Analizador lï¿½xico: ");
+   retorno.add("Analizador léxico: ");
    retorno.addAll(this.tokens);
-   retorno.add("Analizador sintï¿½ctico: ");
+   retorno.add("Analizador sintáctico: ");
    retorno.addAll(this.salida);
    return retorno;
 }
 
-boolean fueraRangoIntPositivo(Entrada e){
+private boolean fueraRangoIntPositivo(Entrada e){
     int val = (Integer) (e.getValor());
     return ((0 <= val) && (val > MAX_INTEGER-1));
 }
 
-void setearTipoElementosEstructuras(Entrada e) {
+private void setearTipoElementosEstructuras(Entrada e) {
     elemento_estructuras.add(e.getNombre());
     e = anaLex.getTablaSimbolos().get(e.getNombre());
     e.setTipo_dato(this.tipo_dato);
     this.tipo_dato = null;
 }
 
-void estaDeclarada(Entrada e) {
+private void estaDeclarada(Entrada e) {
     if (e.getTipo_dato()==null) {
-        this.erroresSemanticos.add("La variable " + e.getNombre() + " no estÃ¡ declarada.");
+        this.erroresSemanticos.add("La variable " + e.getNombre() + " no está declarada.");
     }
 }
-//#line 578 "Parser.java"
+
+public Vector<String> getErroresSemanticos() {
+    return this.erroresSemanticos;
+}
+//#line 582 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -814,7 +818,7 @@ case 3:
 break;
 case 4:
 //#line 26 "gramatica.txt"
-{yyout("declaraciï¿½n.");}
+{yyout("declaracion.");}
 break;
 case 5:
 //#line 27 "gramatica.txt"
@@ -857,7 +861,7 @@ case 8:
 break;
 case 9:
 //#line 60 "gramatica.txt"
-{ yyerror("falta nombre de variable en declaraciï¿½n.");}
+{ yyerror("falta nombre de variable en declaracion.");}
 break;
 case 10:
 //#line 61 "gramatica.txt"
@@ -1159,7 +1163,7 @@ case 100:
 //#line 221 "gramatica.txt"
 { yyerror("se esperaba ';.'");}
 break;
-//#line 1086 "Parser.java"
+//#line 1090 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
