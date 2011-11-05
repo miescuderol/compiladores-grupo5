@@ -27,7 +27,7 @@ public class Compilador {
         //try{
             this.analSint.run();
             Vector<String> salida = new Vector<String>();
-            salida.add("Compilando cÃ³digo fuente");
+            salida.add("Compilando código fuente");
             salida.add("---------------------------------");
             salida.addAll(this.analSint.getSalida());
             String out = "";
@@ -49,14 +49,19 @@ public class Compilador {
         Vector<String> salida = new Vector<String>();
         Vector<String> erroresLexicos = this.analLex.getErrores();
         if (!erroresLexicos.isEmpty()) {
-            salida.add("ERRORES LÃ‰XICOS:");
+            salida.add("ERRORES LÉXICOS:");
             salida.addAll(erroresLexicos);
         }
         salida.add("---------------------------------");
         Vector<String> erroresSintacticos = this.analSint.getErrores(); // harcodeo
         if (!erroresSintacticos.isEmpty()) {
-            salida.add("ERRORES SINTÃCTICOS:");
+            salida.add("ERRORES SINTÁCTICOS:");
             salida.addAll(erroresSintacticos);
+        }
+        Vector<String> erroresSemanticos = this.analSint.getErroresSemanticos();
+        if (!erroresSemanticos.isEmpty()) {
+            salida.add("ERRORES SEMÁNTICOS:");
+            salida.addAll(erroresSemanticos);
         }
         String out = "";
         for (int i=0;i<salida.size();i++) {
