@@ -106,6 +106,7 @@ public abstract class AccionSemantica {
                 Entrada e = AccionSemantica.tablaSimbolos.get(nombreToken);
                 if (e==null) {
                     e = new Entrada(nombreToken, Tipo.CONSTANTE_INTEGER, valor);
+                    e.setTipo_dato(Tipo.INTEGER);
                     AccionSemantica.tablaSimbolos.addNuevaEntrada(e);
                 }
                 AccionSemantica.token = new TokenConAtributo(nombreToken,AccionSemantica.tablaSimbolos.getCodigoYacc(nombreToken), e);
@@ -126,6 +127,7 @@ public abstract class AccionSemantica {
                 Entrada e = AccionSemantica.tablaSimbolos.get(nombreToken);
                 if (e==null) {
                     e = new Entrada(nombreToken, Tipo.CONSTANTE_ULONGINT, valor);
+                    e.setTipo_dato(Tipo.ULONGINT);
                     AccionSemantica.tablaSimbolos.addNuevaEntrada(e);
                 }
                 AccionSemantica.token = new TokenConAtributo(nombreToken,AccionSemantica.tablaSimbolos.getCodigoYacc(nombreToken), e);
