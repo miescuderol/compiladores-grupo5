@@ -646,13 +646,13 @@ private void setearTipoElementosEstructuras(Entrada e) {
 
 private void estaDeclarada(Entrada e) {
     if (e.getTipo_dato()==null) {
-        this.erroresSemanticos.add("La variable " + e.getNombre() + " no está declarada.");
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " no está declarada.");
     }
 }
 
 private boolean estaRedeclarada(Entrada e) {
     if (e.getTipo_dato()!=null) {
-        this.erroresSemanticos.add("La variable " + e.getNombre() + " ya está declarada.");
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " ya está declarada.");
         return true;
     }
     return false;
@@ -1061,7 +1061,7 @@ case 70:
                                     Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)val_peek(2).obj).getNombre());
                                     EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre()));
                                     if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
-                                        this.erroresSemanticos.add("El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
+                                        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
                                     }
                                   }
 break;
@@ -1101,7 +1101,7 @@ case 77:
                                                                                                   i++;
                                                                                             }
                                                                                             if (i<this.elementosDelFor.size()) {
-                                                                                                  this.erroresSemanticos.add("Se esperaba un identificador/constante de tipo " + t + " pero se encontró " + this.elementosDelFor.get(i).getTipo_dato());
+                                                                                                  this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - Se esperaba un identificador/constante de tipo " + t + " pero se encontró " + this.elementosDelFor.get(i).getTipo_dato());
                                                                                                   this.elementosDelFor.clear();
                                                                                             }
                                                                                          }
