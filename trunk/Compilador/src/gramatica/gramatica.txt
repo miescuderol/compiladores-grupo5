@@ -38,7 +38,7 @@ declaracion : tipo lista_variables ';' {
                                          this.tipo_dato = null;
                                          this.identificadores.clear();
                                        }
-            | estructura ID ';' {    // Recupero la tabla de s�mbolos
+            | estructura ID ';' {    // Recupero la tabla de simbolos
                                   TablaSimbolos t = anaLex.getTablaSimbolos();
                                   // Recupero la entrada de la estructura padre
                                   Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
@@ -59,8 +59,8 @@ declaracion : tipo lista_variables ';' {
 
             | tipo  ';' { yyerror("falta nombre de variable en declaracion.");}
             | estructura ';' {yyerror("falta nombre de la estructura en declaraci�n.");}
-            | estructura ID ',' lista_variables ';' {yyerror("declaraci�n m�ltiple en estructuras est� prohibida.");}
-            | lista_variables ';'  { yyerror("declaraci�n de variable sin tipo definido.");}
+            | estructura ID ',' lista_variables ';' {yyerror("declaracion multiple en estructuras esta prohibida.");}
+            | lista_variables ';'  { yyerror("declaracion de variable sin tipo definido.");}
             | tipo lista_variables  { yyerror("se esperaba ';'.");}
             | estructura ID { yyerror("se esperaba ';'.");}
 ;
@@ -70,7 +70,7 @@ tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
      | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
 ;
 
-estructura : STRUCT {yyout("Sentencia de declaraci�n de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
+estructura : STRUCT {yyout("Sentencia de declaracion de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
 ;
 
 cuerpo_estructura : tipo ID ';' {
@@ -105,20 +105,31 @@ sentencia : seleccion
 ;
 
 
-seleccion : IF condicion  THEN bloque ELSE bloque ';'  {yyout("Condicional.");}
+seleccion : IF condicion  {apilar(ElementoPolaca.BF);} seleccionThen  {yyout("Condicional.");}
 
-          | IF condicion error bloque ELSE bloque ';'  { yyerror("se esperaba un 'then'.");}
-          | IF condicion THEN bloque error bloque ';' { yyerror("se esperaba un 'else'.");}
-          | IF error THEN bloque ELSE bloque ';'  { yyerror("la condici�n de selecci�n no es v�lida.");}
+          | IF error seleccioneThen { yyerror("la condicion de seleccion no es valida.");}
 ;
+
+seleccionThen: THEN bloque {desapilar(1); apilar(ElementoPolaca.BI);agregarRotulo();} seleecionElse
+
+               | error bloque seleccionElse ';' {yyerror("se esperaba un 'then'.");}
+               | THEN seleccionElse ';' {yyerror("se esperaba un bloque luego de la palabra reservada 'then'.");}
+;
+
+seleccionElse: ELSE bloque ';' {desapilar(0); agregarRotulo();}
+
+               | error bloque ';' {yyerror("se esperaba un 'else'.");}
+               | ELSE ';' {yyerror("se esperaba un bloque luego de la palabra reservada 'else'.)";}
+;
+
 
 condicion :  '(' expresion comparador expresion ')'
 
-          | expresion comparador expresion ')' { yyerror("se esperaba '(' antes de la condici�n.");}
+          | expresion comparador expresion ')' { yyerror("se esperaba '(' antes de la condicion.");}
           | '(' error comparador expresion ')'        { yyerror("se esperaba una expresion antes del comparador.");}
-          | '(' expresion error expresion ')'        { yyerror("se esperaba un comparador v�lido.");}
-          | '(' expresion comparador error ')'        { yyerror("se esperaba una expresion despu�s del comparador");}
-          | '(' expresion comparador expresion  error  { yyerror("se esperaba ')' despu�s de la condici�n.");}
+          | '(' expresion error expresion ')'        { yyerror("se esperaba un comparador valido.");}
+          | '(' expresion comparador error ')'        { yyerror("se esperaba una expresion despues del comparador");}
+          | '(' expresion comparador expresion  error  { yyerror("se esperaba ')' despues de la condicion.");}
 ;
 
 comparador : '>'
