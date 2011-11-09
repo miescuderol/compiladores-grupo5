@@ -106,7 +106,7 @@ public class AnalizadorLexico {
         return numeroLinea;
     }
     
-        public TablaSimbolos getTablaSimbolos(){
+    public TablaSimbolos getTablaSimbolos(){
         return this.tb;
     }
 }

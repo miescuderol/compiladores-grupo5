@@ -67,6 +67,9 @@ public class CompiladorGUI extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaPalabrasReservadas = new javax.swing.JTextArea();
+        jPanel5 = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tablaPolacaInversa = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Diseño de Compiladores I - Trabajo Práctico 1 y 2 - Grupo 5");
@@ -192,6 +195,29 @@ public class CompiladorGUI extends javax.swing.JFrame {
 
         tabbedPane.addTab("Palabras reservadas", jPanel4);
 
+        tablaPolacaInversa.setColumns(20);
+        tablaPolacaInversa.setRows(5);
+        jScrollPane5.setViewportView(tablaPolacaInversa);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab("Polaca inversa", jPanel5);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -268,6 +294,7 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     this.errores.setText(this.compilador.getErrores());
     this.tablaSimbolosGrafica.setText(this.compilador.getContenidoTablaSimbolos());
     this.tablaPalabrasReservadas.setText(this.compilador.getPalabrasReservadas());
+    this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa().toString());
 }//GEN-LAST:event_btnCompilarActionPerformed
 
     /**
@@ -326,15 +353,18 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JLabel lblCodigoFuente;
     private javax.swing.JTextArea salidaCompilador;
     private javax.swing.JScrollPane scrollPaneCodigoFuente;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTextArea tablaPalabrasReservadas;
+    private javax.swing.JTextArea tablaPolacaInversa;
     private javax.swing.JTextArea tablaSimbolosGrafica;
     // End of variables declaration//GEN-END:variables
 }
