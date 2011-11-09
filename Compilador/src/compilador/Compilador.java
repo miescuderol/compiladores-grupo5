@@ -4,6 +4,7 @@
  */
 package compilador;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 /**
@@ -15,6 +16,7 @@ public class Compilador {
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
     private Parser analSint;
+    private ArrayList<ElementoPolaca> polacaInversa;
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -74,5 +76,8 @@ public class Compilador {
         return this.tablaSimbolos.getPalabrasReservadas();
     }
     
+    public Vector<ElementoPolaca> getPolacaInversa(){
+        return this.analSint.getPolacaInversa();
+    }
     
 }
