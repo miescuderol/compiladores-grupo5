@@ -16,6 +16,7 @@ public class Compilador {
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
     private Parser analSint;
+    private String assembler;
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -82,6 +83,34 @@ public class Compilador {
             polacaInversa = polacaInversa + p.get(i) + "\n";
         }
         return polacaInversa;
+    }
+    
+    private String generarHeaderAssembler() {
+        return ".MODEL small\n.386\n.STACK 100h\n";
+    }
+    
+    private String generarData() {
+        String data=".DATA\n";
+        // Generación de errores
+        data = data + "msjErrorNegativo DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.\n"
+                + "msjWarningConversion DB 'Warning: Conversión implícita generó pérdida de precisión'\n";
+        // Generación de elementos de la tabla de símbolos
+        
+        return "";
+    }
+    
+    private String generarCode() {
+        return "";
+    }
+    
+    private String generarCuerpo() {
+        return "";
+    }
+    
+    private void generarAssembler() {
+        if (this.analSint.isCompilable()) { // si el código no tiene error
+            this.assembler = generarHeaderAssembler() + generarData() + generarCode() + generarCuerpo();
+        }
     }
     
 }
