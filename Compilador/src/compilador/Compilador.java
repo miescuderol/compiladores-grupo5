@@ -16,7 +16,6 @@ public class Compilador {
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
     private Parser analSint;
-    private ArrayList<ElementoPolaca> polacaInversa;
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -76,8 +75,13 @@ public class Compilador {
         return this.tablaSimbolos.getPalabrasReservadas();
     }
     
-    public Vector<ElementoPolaca> getPolacaInversa(){
-        return this.analSint.getPolacaInversa();
+    public String getPolacaInversa(){
+        Vector<ElementoPolaca> p = this.analSint.getPolacaInversa();
+        String polacaInversa = "";
+        for(int i = 0; i < p.size();i++){
+            polacaInversa = polacaInversa + p.get(i) + "\n";
+        }
+        return polacaInversa;
     }
     
 }

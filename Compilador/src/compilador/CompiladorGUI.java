@@ -294,7 +294,7 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     this.errores.setText(this.compilador.getErrores());
     this.tablaSimbolosGrafica.setText(this.compilador.getContenidoTablaSimbolos());
     this.tablaPalabrasReservadas.setText(this.compilador.getPalabrasReservadas());
-    this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa().toString());
+    this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa());
 }//GEN-LAST:event_btnCompilarActionPerformed
 
     /**
