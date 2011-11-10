@@ -108,9 +108,9 @@ public class Compilador {
     }
     
     private void generarAssembler() {
-        if (this.analSint.isCompilable()) { // si el código no tiene error
-            this.assembler = generarHeaderAssembler() + generarData() + generarCode() + generarCuerpo();
-        }
+      //  if (this.analSint.isCompilable()) { // si el código no tiene error
+        //    this.assembler = generarHeaderAssembler() + generarData() + generarCode() + generarCuerpo();
+     //   }
     }
     
 }
