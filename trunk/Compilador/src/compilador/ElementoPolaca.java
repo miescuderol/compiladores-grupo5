@@ -11,36 +11,35 @@ package compilador;
 class ElementoPolaca {
     //operadores unarios:
     public static final int PRINT=0;
-    public static final int CONVERSION=5;
 
     //operadores binarios:
     public static final int SUMA=1;
     public static final int RESTA=2;
     public static final int MULTIPLICACION=3;
     public static final int DIVISION=4;
-    public static  final int ASIGNACION=20;
+    public static  final int ASIGNACION=19;
 
     //operandos:
-    public static final int VAR_INT=6;
-    public static final int VAR_ULONG=7;
-    public static final int CONS_INT=8;
-    public static final int CONS_ULONG=9;
-    public static final int CADENA=10;
+    public static final int VAR_INT=5;
+    public static final int VAR_ULONG=6;
+    public static final int CONS_INT=7;
+    public static final int CONS_ULONG=8;
+    public static final int CADENA=9;
 
     //bifurcaciones:
-    public static final int BF=11;
-    public static final int BI=12;
-    public static final int ROTULO=13;
+    public static final int BF=10;
+    public static final int BI=11;
+    public static final int ROTULO=12;
 
     //condiciones:
-    public static  final int MAYOR=14;
-    public static  final int MENOR=15;
-    public static  final int MAYORIGUAL=16;
-    public static  final int MENORIGUAL=17;
-    public static  final int DISTINTO=18;
-    public static  final int IGUAL=19;
+    public static  final int MAYOR=13;
+    public static  final int MENOR=14;
+    public static  final int MAYORIGUAL=15;
+    public static  final int MENORIGUAL=16;
+    public static  final int DISTINTO=17;
+    public static  final int IGUAL=18;
 
-    private static final String[] scodigos=new String[]{"PRINT","SUMA","RESTA","MULTIPLICACION","DIVISION","CONVERSION TOULONG",
+    private static final String[] scodigos=new String[]{"PRINT","SUMA","RESTA","MULTIPLICACION","DIVISION",
                                                         "variable int: ","variable ulong: ",
                                                         "constante int: ","constante ulong: ","cadena: ",
                                                         "bifurcacion por falso a direccion ",
