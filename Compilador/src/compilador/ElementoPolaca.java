@@ -49,12 +49,21 @@ class ElementoPolaca {
     private Tipo tipo_dato;
     private String nombre;
 
-    public ElementoPolaca(int t, String n) {
+    public ElementoPolaca(int t, Tipo td, String n) {
         tipo=t;
+        tipo_dato = td;
         nombre=n;
     }
+    
+    public ElementoPolaca(int t, String n){
+        tipo = t;
+        tipo_dato = null;
+        nombre = n;
+    }
+    
     public ElementoPolaca(int t) {
         tipo=t;
+        tipo_dato = null;
         nombre=null;
     }
 
@@ -86,8 +95,10 @@ class ElementoPolaca {
     public String toString(){
         if(nombre==null)
                 return scodigos[tipo];
-        else
+        else if(tipo_dato == null)
             return scodigos[tipo]+nombre;
+        else
+            return scodigos[tipo]+tipo_dato.toString()+nombre;
     }
     
 }

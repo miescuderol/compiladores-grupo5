@@ -712,18 +712,15 @@ public boolean isCompilable(){
 void agregarAPolacaId(Entrada e){
     Tipo t = anaLex.getTablaSimbolos().get(e.getNombre()).getTipo_dato();
     System.out.println("tipo de la entrada: " + t);
-    if(t == Tipo.INTEGER)
-       polacaInversa.add(new ElementoPolaca(ElementoPolaca.VAR_INT,e.getNombre()));
-    else
-       polacaInversa.add(new ElementoPolaca(ElementoPolaca.VAR_ULONG,e.getNombre()));
+       polacaInversa.add(new ElementoPolaca(ElementoPolaca.VARIABLE, t,e.getNombre()));
 }
 
 void agregarAPolacaConstante(Entrada e){
     if(e.getTipo() == Tipo.CONSTANTE_INTEGER)
-    polacaInversa.add(new ElementoPolaca(ElementoPolaca.CONS_INT,e.getValor().toString()));
+    polacaInversa.add(new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.INTEGER,e.getValor().toString()));
     else
       if(e.getTipo() == Tipo.CONSTANTE_ULONGINT)
-        polacaInversa.add(new ElementoPolaca(ElementoPolaca.CONS_ULONG,e.getValor().toString()));
+        polacaInversa.add(new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.ULONGINT,e.getValor().toString()));
       else
         polacaInversa.add(new ElementoPolaca(ElementoPolaca.CADENA,e.getValor().toString()));
 }
