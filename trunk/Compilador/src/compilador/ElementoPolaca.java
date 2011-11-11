@@ -8,7 +8,7 @@ package compilador;
  *
  * @author Nacha
  */
-class ElementoPolaca {
+public class ElementoPolaca {
     //operadores unarios:
     public static final int PRINT=0;
 
@@ -98,7 +98,7 @@ class ElementoPolaca {
         else if(tipo_dato == null)
             return scodigos[tipo]+nombre;
         else
-            return scodigos[tipo]+tipo_dato.toString()+nombre;
+            return scodigos[tipo]+tipo_dato.toString()+" "+nombre;
     }
     
 }
