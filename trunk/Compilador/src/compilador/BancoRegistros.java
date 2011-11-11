@@ -26,7 +26,8 @@ public class BancoRegistros {
     public Registro ocuparRegistroLibre() {
         Enumeration e = this.registros.keys();
         while (e.hasMoreElements()){
-            Registro r = (Registro) (e.nextElement());
+            String k = (String) (e.nextElement());
+            Registro r = this.registros.get(k);
             if (!(r.getNombre().equals("EAX")) && !(r.isOcupado())) {
                 r.ocupar();
                 return r;
