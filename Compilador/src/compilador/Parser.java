@@ -740,7 +740,7 @@ void apilar(int s) {
 void desapilar(int desplazamiento) {
         int pos = pila.pop().intValue();
         int direccion = polacaInversa.size()+desplazamiento;
-        polacaInversa.get(pos).nombre = "LABEL_"+Integer.toString(direccion);
+        polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
 
 void agregarRotulo(){
@@ -754,7 +754,7 @@ void apilarDireccion() {
 void desapilarDireccion() {
         int pos=pila.pop().intValue();
         int direccion=retornos.pop();
-        polacaInversa.get(pos).nombre="LABEL_"+Integer.toString(direccion);
+        polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
 //#line 688 "Parser.java"
 //###############################################################

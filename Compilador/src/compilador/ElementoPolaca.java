@@ -40,9 +40,15 @@ class ElementoPolaca {
     public static  final int DISTINTO=18;
     public static  final int IGUAL=19;
 
+    private static final String[] scodigos=new String[]{"PRINT","SUMA","RESTA","MULTIPLICACION","DIVISION","CONVERSION TOULONG",
+                                                        "variable int: ","variable ulong: ",
+                                                        "constante int: ","constante ulong: ","cadena: ",
+                                                        "bifurcacion por falso a direccion ",
+                                                        "bifurcacion incondicional a direccion ",
+                                                        "ROTULO ","MAYOR","MENOR", "MAYORIGUAL","MENORIGUAL","DISTINTO","IGUAL","ASIGNACION"};
 
-    public int tipo;
-    public String nombre;
+    private int tipo;
+    private String nombre;
 
     public ElementoPolaca(int t, String n) {
         tipo=t;
@@ -53,6 +59,22 @@ class ElementoPolaca {
         nombre=null;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(int tipo) {
+        this.tipo = tipo;
+    }
+    
     @Override
     public String toString(){
         if(nombre==null)
@@ -60,10 +82,5 @@ class ElementoPolaca {
         else
             return scodigos[tipo]+nombre;
     }
-    private static final String[] scodigos=new String[]{"PRINT","SUMA","RESTA","MULTIPLICACION","DIVISION","CONVERSION TOULONG",
-                                                        "variable int: ","variable ulong: ",
-                                                        "constante int: ","constante ulong: ","cadena: ",
-                                                        "bifurcacion por falso a direccion ",
-                                                        "bifurcacion incondicional a direccion ",
-                                                        "ROTULO ","MAYOR","MENOR", "MAYORIGUAL","MENORIGUAL","DISTINTO","IGUAL","ASIGNACION"};
+    
 }
