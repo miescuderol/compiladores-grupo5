@@ -43,7 +43,7 @@ public class ElementoPolaca {
                                                         "variable: ","constante: ","cadena: ",
                                                         "bifurcacion por falso a direccion ",
                                                         "bifurcacion incondicional a direccion ",
-                                                        "ROTULO ","MAYOR","MENOR", "MAYORIGUAL","MENORIGUAL","DISTINTO","IGUAL"};
+                                                        "ROTULO ","MAYOR","MENOR", "MAYORIGUAL","MENORIGUAL","DISTINTO","IGUAL", "REGISTRO"};
 
     private int tipo;
     private Tipo tipo_dato;
