@@ -6,13 +6,14 @@ package compilador;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
  *
  * @author José Ignacio Orlando
  */
-public class TablaSimbolos {
+public class TablaSimbolos implements Iterable<String> {
     
     private Hashtable<String,Integer> palabrasReservadas;
     private Hashtable<String,Entrada> tablaIdConst;
@@ -124,6 +125,11 @@ public class TablaSimbolos {
             ret = ret + ((String) (e.nextElement())) + "\n";
         }
         return ret;
+    }
+
+    @Override
+    public IteradorTablaSimbolos iterator() {
+        return new IteradorTablaSimbolos(this.tablaIdConst);
     }
     
 }
