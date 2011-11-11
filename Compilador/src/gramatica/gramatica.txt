@@ -40,7 +40,7 @@ declaracion : tipo lista_variables ';' {
                                          this.tipo_dato = null;
                                          this.identificadores.clear();
                                        }
-            | estructura ID ';' {    // Recupero la tabla de simbolos
+            | estructura ID ';' {    // Recupero la tabla de sï¿½mbolos
                                   TablaSimbolos t = anaLex.getTablaSimbolos();
                                   // Recupero la entrada de la estructura padre
                                   Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
@@ -61,8 +61,8 @@ declaracion : tipo lista_variables ';' {
 
             | tipo  ';' { yyerror("falta nombre de variable en declaracion.");}
             | estructura ';' {yyerror("falta nombre de la estructura en declaraciï¿½n.");}
-            | estructura ID ',' lista_variables ';' {yyerror("declaracion multiple en estructuras esta prohibida.");}
-            | lista_variables ';'  { yyerror("declaracion de variable sin tipo definido.");}
+            | estructura ID ',' lista_variables ';' {yyerror("declaraciï¿½n mï¿½ltiple en estructuras estï¿½ prohibida.");}
+            | lista_variables ';'  { yyerror("declaraciï¿½n de variable sin tipo definido.");}
             | tipo lista_variables  { yyerror("se esperaba ';'.");}
             | estructura ID { yyerror("se esperaba ';'.");}
 ;
@@ -72,7 +72,7 @@ tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
      | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
 ;
 
-estructura : STRUCT {yyout("Sentencia de declaracion de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
+estructura : STRUCT {yyout("Sentencia de declaraciï¿½n de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
 ;
 
 cuerpo_estructura : tipo ID ';' {
@@ -86,8 +86,18 @@ cuerpo_estructura : tipo ID ';' {
 		  | tipo ID cuerpo_estructura { yyerror("se esperaba ';'.");}
 ;
 
-lista_variables : ID {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
-                | ID ',' lista_variables {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
+lista_variables : ID {
+                       Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                       if (!(this.estaRedeclarada(e))) {
+                           this.identificadores.add(e);
+                       }
+                     }
+                | ID ',' lista_variables {
+                                            Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                                            if (!(this.estaRedeclarada(e))) {
+                                                this.identificadores.add(e);
+                                            }
+                                         }
 ;
 
 bloque : sentencia   {yyout("Una sola sentencia.");}
@@ -167,13 +177,13 @@ asignacion : ID ASIGN expresion ';' {
                                     }
            | elemento_estructura ASIGN expresion ';'    {yyout("Asignacion a elemento de estructura.");}
 
-           | ID  expresion ';'    { yyerror("se esperaba el operador de asignacion ':='.");}
-           | ID ASIGN  ';'        { yyerror("se esperaba una expresion del lado derecho de la asignacion.");}
+           | ID  expresion ';'    { yyerror("se esperaba el operador de asignaciï¿½n ':='.");}
+           | ID ASIGN  ';'        { yyerror("se esperaba una expresiï¿½n del lado derecho de la asignaciï¿½n.");}
            | ID ASIGN expresion error { yyerror("se esperaba ';'.");}
 ;
 
-termino : termino '*' factor {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyout("Sentencia de producto.");}
-        | termino '/' factor {agregarAPolaca(ElementoPolaca.DIVISION);yyout("Sentencia de division.");}
+termino : termino '*' factor {yyout("Sentencia de producto.");}
+        | termino '/' factor {yyout("Sentencia de divisiï¿½n.");}
         | factor
 
         | termino '*'   { yyerror("se esperaba un factor luego de '*'.");}
@@ -184,7 +194,13 @@ factor : factor_for
        | elemento_estructura
 ;
 
-elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");}
+elemento_estructura : ID '.' ID  {
+                                    Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                                    EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)$3.obj).getNombre()));
+                                    if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
+                                        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
+                                    }
+                                  }
 
                     | ID ID    { yyerror("se esperaba un punto.");}
                     | ID '.'   { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
@@ -200,6 +216,16 @@ bucle :  FOR condicion_for bloque ';'   {yyout("Bucle for.");}
 condicion_for : '(' ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for ')' {
                                                                                             Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
                                                                                             estaDeclarada(e);
+                                                                                            this.elementosDelFor.add(e); // agrego la entrada del ID a los elementos del for
+                                                                                            Tipo t = e.getTipo_dato();
+                                                                                            int i=0;
+                                                                                            while ((i<this.elementosDelFor.size()) && (t==this.elementosDelFor.get(i).getTipo_dato())) {
+                                                                                                  i++;
+                                                                                            }
+                                                                                            if (i<this.elementosDelFor.size()) {
+                                                                                                  this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - Se esperaba un identificador/constante de tipo " + t + " pero se encontrï¿½ " + this.elementosDelFor.get(i).getTipo_dato());
+                                                                                                  this.elementosDelFor.clear();
+                                                                                            }
                                                                                          }
 
               | ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor_for ')'    { yyerror("se esperaba '(' antes de la condiciï¿½n.");}
@@ -220,31 +246,35 @@ condicion_for : '(' ID ASIGN factor_for ';' factor_for '>' factor_for ';' factor
 
 factor_for : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                  estaDeclarada(e);
-                 agregarAPolacaId((Entrada)$1.obj);}
-           | CTE_ULON    {agregarAPolacaConstante((Entrada)$1.obj);}
-           | CTE_INT       { anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()).visitar();
-                             fueraRangoIntPositivo((Entrada)$1.obj);
-                             agregarAPolacaConstante((Entrada)$1.obj); }
+                 this.elementosDelFor.add(e);}
+           | CTE_ULON {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                       estaDeclarada(e);
+                       this.elementosDelFor.add(e);}
+           | CTE_INT       { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                             this.elementosDelFor.add(e);
+                             e.visitar(); 
+                             if (fueraRangoIntPositivo((Entrada)$1.obj)) 
+                                yyerror("entero fuera de rango [-32768;32767]");}
            | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
     				if (!(actual).isVisitado()) {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
         			anaLex.getTablaSimbolos().addNuevaEntrada(e);
         			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
+                                this.elementosDelFor.add(e);
     				} else {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
         			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+        			this.elementosDelFor.add(e);
  				}
  				agregarAPolacaConstante((Entrada)$1.obj);
                                  //tal vez convenga pasar directamente e, que es la nueva entrada con el signo negativo puesto
 			    }
 ;
 
-impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresion.");
-                                      agregarAPolacaConstante((Entrada)$3.obj);
-                                      agregarAPolaca(ElementoPolaca.PRINT);}
+impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresiï¿½n.");}
 
           | '(' CADENA ')' ';' { yyerror("se esperaba 'print'");}
-          | PRINT '(' ')' ';' { yyerror("se esperaba una cadena dentro de la instruccion print.");}
+          | PRINT '(' ')' ';' { yyerror("se esperaba una cadena dentro de la instrucciï¿½n print.");}
           | PRINT CADENA ')' ';' { yyerror("se esperaba '(' antes de la cadena en sentencia print.");}
           | PRINT '(' CADENA ';' { yyerror("sentencia print sin parentesis de cierre.");}
 
@@ -268,10 +298,8 @@ private Vector<Entrada> identificadores = new Vector<Entrada>();
 // para manejo de errores semanticos
 private Vector<String> erroresSemanticos = new Vector<String>();
 
-//para manejo de polaca inversa
-private Vector<ElementoPolaca> polacaInversa = new Vector<ElementoPolaca>();
-Stack<Integer> pila=new Stack();
-Stack<Integer> retornos=new Stack();
+// para control de tipos en el for
+private Vector<Entrada> elementosDelFor = new Vector<Entrada>();
 
 public static final int MAX_INTEGER_NEG = 32767;
 public static final int MAX_INTEGER = 32768;
@@ -318,9 +346,9 @@ public Vector<String> getTokens(){
 
 public Vector<String> getSalida(){
    Vector<String> retorno = new Vector<String>();
-   retorno.add("Analizador léxico: ");
+   retorno.add("Analizador lï¿½xico: ");
    retorno.addAll(this.tokens);
-   retorno.add("Analizador sintáctico: ");
+   retorno.add("Analizador sintï¿½ctico: ");
    retorno.addAll(this.salida);
    return retorno;
 }
@@ -340,8 +368,16 @@ private void setearTipoElementosEstructuras(Entrada e) {
 
 private void estaDeclarada(Entrada e) {
     if (e.getTipo_dato()==null) {
-        this.erroresSemanticos.add("La variable " + e.getNombre() + " no está declarada.");
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " no estï¿½ declarada.");
     }
+}
+
+private boolean estaRedeclarada(Entrada e) {
+    if (e.getTipo_dato()!=null) {
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " ya estï¿½ declarada.");
+        return true;
+    }
+    return false;
 }
 
 public Vector<String> getErroresSemanticos() {

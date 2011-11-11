@@ -31,10 +31,11 @@ public class Compilador {
         // se corre la compilaciÃ³n
         //try{
             this.analSint.run();
+            this.generarAssembler();
             Vector<String> salida = new Vector<String>();
             salida.add("Compilando código fuente");
             salida.add("---------------------------------");
-            salida.addAll(this.analSint.getSalida());
+            salida.add(this.getAssembler());
             String out = "";
             for (int i=0;i<salida.size();i++) {
                 out = out + salida.get(i) + "\n";
