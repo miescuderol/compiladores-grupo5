@@ -16,7 +16,7 @@ public class Compilador {
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
     private Parser analSint;
-    private String assembler;
+    private Vector<String> assembler;
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -85,33 +85,67 @@ public class Compilador {
         return polacaInversa;
     }
     
-    private String generarHeaderAssembler() {
-        return ".MODEL small\n.386\n.STACK 100h\n";
+    private void generarHeaderAssembler() {
+        this.assembler.add(".386");
+        this.assembler.add(".model flat, stdcall");
+        this.assembler.add(".STACK 200h");
+        this.assembler.add("option casemap :none");
+        this.assembler.add("include \\masm32\\include\\windows.inc");
+        this.assembler.add("include \\masm32\\include\\kernel32.inc");
+        this.assembler.add("include \\masm32\\include\\user32.inc");
+        this.assembler.add("includelib \\masm32\\lib\\kernel32.lib");
+        this.assembler.add("includelib \\masm32\\lib\\user32.lib");
     }
     
-    private String generarData() {
-        String data=".DATA\n";
+    private void generarData() {
+        // Generación del encabezado
+        this.assembler.add(".DATA");
         // Generación de errores
-        data = data + "msjErrorNegativo DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.\n"
-                + "msjWarningConversion DB 'Warning: Conversión implícita generó pérdida de precisión'\n";
+        this.assembler.add("msjErrorNegativo DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.");
+        this.assembler.add("msjWarningConversion DB 'Warning: Conversión implícita generó pérdida de precisión'");
         // Generación de elementos de la tabla de símbolos
+        IteradorTablaSimbolos it = this.analLex.getTablaSimbolos().iterator();
+        while (it.hasNext()) {
+            Entrada e = it.nextEntrada();
+            // De acuerdo al tipo, reservamos el espacio que corresponda
+            if (e.getTipo()==Tipo.ID) {
+                Tipo t = e.getTipo_dato();
+                if (t==Tipo.INTEGER) {
+                    this.assembler.add("_"+ e.getNombre() + " dd 0");
+                } else if (t==Tipo.ULONGINT) {
+                    this.assembler.add("_"+ e.getNombre() + " dd 0");
+                } else if (t==Tipo.STRUCT) {
+                    // ¿¿¿¿CÓMO MIERDA?????
+                }                  
+            } else if (e.getTipo()==Tipo.CADENA) {
+                this.assembler.add("_" + e.getNombre() + " db '" + e.getNombre()+ "', 0");
+            }
+        }
+    }
+    
+    private void generarCode() {
         
-        return "";
     }
     
-    private String generarCode() {
-        return "";
-    }
-    
-    private String generarCuerpo() {
-        return "";
+    private void generarCuerpo() {
     }
     
     private void generarAssembler() {
         if (this.analSint.isCompilable()) { // si el código no tiene error
-            this.assembler = generarHeaderAssembler() + generarData() + generarCode() + generarCuerpo();
+            this.assembler = new Vector<String>();
+            this.generarHeaderAssembler();
+            this.generarData();
+            this.generarCode();
+            this.generarCuerpo();
         }
-
+    }
+    
+    public String getAssembler() {
+        String acum = "";
+        for (int i=0;i<this.assembler.size();i++) {
+            acum = acum + this.assembler.get(i) + "\n";
+        }
+        return acum;
     }
     
 }
