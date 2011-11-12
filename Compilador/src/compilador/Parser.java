@@ -623,6 +623,7 @@ private Stack<Integer> retornos=new Stack();
 private Entrada indiceFor;
 private ElementoPolaca decrementoFor;
 private boolean almacenarDecremento = false;
+private Entrada estructuraPolaca;
 
 public static final int MAX_INTEGER_NEG = 32767;
 public static final int MAX_INTEGER = 32768;
@@ -707,10 +708,6 @@ public boolean isCompilable(){
        return (erroresSemanticos.isEmpty());
 }
 
-void pasarValor(ParserVal izq, ParserVal der) {
-        izq.sval=der.sval;
-}
-
 //metodos para controlar la polaca
 private void agregarAPolacaId(Entrada e){
     Tipo t = anaLex.getTablaSimbolos().get(e.getNombre()).getTipo_dato();
@@ -752,6 +749,7 @@ private void guardarIndiceFor(Entrada e){
     this.indiceFor = e;
 }
 
+
 private void apilar(int s) {
         pila.push(polacaInversa.size());
         polacaInversa.add(new ElementoPolaca(s));
@@ -776,7 +774,7 @@ private void desapilarDireccion() {
         int direccion=retornos.pop();
         polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
-//#line 708 "Parser.java"
+//#line 706 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1217,7 +1215,7 @@ break;
 case 82:
 //#line 169 "gramatica.txt"
 {yyout("Asignacion a elemento de estructura.");
-                                                         agregarAPolacaId((Entrada)val_peek(3).obj);
+                                                         agregarAPolacaId(estructuraPolaca);
                                                          agregarAPolaca(ElementoPolaca.ASIGNACION);}
 break;
 case 83:
@@ -1251,7 +1249,7 @@ break;
 case 93:
 //#line 190 "gramatica.txt"
 {yyout("Elemento de estructura.");
-                                  pasarValor(yyval,val_peek(0));}
+                                  estructuraPolaca = (Entrada)val_peek(0).obj;}
 break;
 case 94:
 //#line 193 "gramatica.txt"
@@ -1403,7 +1401,7 @@ case 126:
 //#line 271 "gramatica.txt"
 { yyerror("se esperaba ';.'");}
 break;
-//#line 1330 "Parser.java"
+//#line 1328 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
