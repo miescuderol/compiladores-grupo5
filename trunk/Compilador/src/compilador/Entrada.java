@@ -25,6 +25,15 @@ public class Entrada {
         this.isElementoEstructura = false;
     }
     
+    public Entrada(Entrada e){
+        this.isElementoEstructura = e.isElementoEstructura();
+        this.nombre = e.getNombre();
+        this.tipo_dato = e.getTipo_dato();
+        this.tipo_token = e.getTipo();
+        this.valor = e.getValor();
+        this.visitado = e.isVisitado();
+    }
+    
     public String getNombre() {
         return this.nombre;
     }
