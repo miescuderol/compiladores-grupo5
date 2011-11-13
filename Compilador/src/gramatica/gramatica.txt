@@ -139,15 +139,29 @@ condicion :  '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca
 			|'(' expresion  COMP_MENOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
 			|'(' expresion  COMP_MAYOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
 			
-			|  '(' expresion '>' expresion {yyerror("Falta ')' al final de la condicion.");} 
-			|  '(' expresion '<' expresion {yyerror("Falta ')' al final de la condicion.");} 
+			|  '(' expresion '>' expresion {yyerror("Falta ')' al final de la condicion.");}
+			|  '(' expresion '<' expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_IGUAL expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_DISTINTO expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_MENOR_IGUAL expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_MAYOR_IGUAL expresion {yyerror("Falta ')' al final de la condicion.");}
+			
+			|  expresion '>' expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
+			|  expresion '<' expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
+			|  expresion COMP_IGUAL expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
+			|  expresion COMP_DISTINTO expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
+			|  expresion COMP_MENOR_IGUAL expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
+			|  expresion COMP_MAYOR_IGUAL expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
 
-			|'(' error {yyerror("Falta la expresion izquierda de la condicion.");} ')' 
-			|  error {yyerror("Falta '(' al comienzo de la condicion.");} ')' 
+			|  expresion '>' expresion {yyerror("Faltan parentesis en condicion.");}
+			|  expresion '<' expresion {yyerror("Faltan parentesis en condicion.");}
+			|  expresion COMP_IGUAL expresion {yyerror("Faltan parentesis en condicion.");}
+			|  expresion COMP_DISTINTO expresion {yyerror("Faltan parentesis en condicion.");}
+			|  expresion COMP_MENOR_IGUAL expresion {yyerror("Faltan parentesis en condicion.");}
+			|  expresion COMP_MAYOR_IGUAL expresion {yyerror("Faltan parentesis en condicion.");}
+
+			|'(' error {yyerror("Se encontro un error en la condicion.");} ')'
+			|  error {yyerror("Se encontro un error en la condicion");} ')'
 
 		;
 
