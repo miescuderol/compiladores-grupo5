@@ -101,4 +101,9 @@ public class ElementoPolaca {
             return scodigos[tipo]+tipo_dato.toString()+" "+nombre;
     }
     
+    @Override
+    public Object clone() {
+        return new ElementoPolaca(this.tipo, this.tipo_dato, this.nombre);
+    }
+    
 }
