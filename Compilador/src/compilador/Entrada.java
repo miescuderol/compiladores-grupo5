@@ -16,6 +16,7 @@ public class Entrada {
     protected boolean visitado;
     protected boolean isElementoEstructura;
     protected Tipo tipo_dato;
+    protected int tamanio;
     
     public Entrada(String nom, Tipo t, Object v) {
         this.nombre = nom;
@@ -81,6 +82,14 @@ public class Entrada {
     
     public boolean isVisitado() {
         return this.visitado;
+    }
+    
+    public void setTamanio(int t) {
+        this.tamanio = t;
+    }
+    
+    public int getTamanio() {
+        return this.tamanio;
     }
     
 }

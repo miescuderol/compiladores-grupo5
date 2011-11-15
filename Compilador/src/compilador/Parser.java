@@ -721,7 +721,7 @@ public Vector<String> getErroresSemanticos() {
 }
 
 public Vector<ElementoPolaca> getPolacaInversa(){
-    return this.polacaInversa;
+    return (Vector<ElementoPolaca>) (this.polacaInversa.clone());
 }
 
 public boolean isCompilable(){
@@ -1001,7 +1001,9 @@ case 8:
                                           distancia_acumulada = distancia_acumulada + 2;
                                       else if (e.getTipo_dato()==Tipo.ULONGINT)
                                           distancia_acumulada = distancia_acumulada + 4;
-                                  }}
+                                  }
+                                  padre.setTamanio(distancia_acumulada);
+}
 break;
 case 9:
 //#line 62 "gramatica.txt"
