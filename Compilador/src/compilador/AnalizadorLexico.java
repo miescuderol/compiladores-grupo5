@@ -5,7 +5,7 @@
 package compilador;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  *
@@ -17,7 +17,7 @@ public class AnalizadorLexico {
     private Archivo archivoTexto;
     private int[][] matrizTransicionEstados;
     private AccionSemantica[][] matrizAccionesSemanticas;
-    private Vector<String> erroresLexicos;
+    private ArrayList<String> erroresLexicos;
     private static int numeroLinea = 1;
     private TablaSimbolos tb;
     
@@ -61,7 +61,7 @@ public class AnalizadorLexico {
                                                                 {AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.reconocerSimboloDoble, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual, AccionSemantica.errorSeEsperabaIgual,AccionSemantica.errorCaracterInvalido}};
 
         // declaramos la lista de errores        
-        this.erroresLexicos = new Vector<String>();
+        this.erroresLexicos = new ArrayList<String>();
         // Le doy la tabla de símbolos a las acciones semánticas
         this.tb = t;
         AccionSemantica.setTablaSimbolos(t);
@@ -98,8 +98,8 @@ public class AnalizadorLexico {
         return accionActual.getToken(); // Retornamos el token armado
     }
 
-    public Vector<String> getErrores() {
-        return new Vector<String>(this.erroresLexicos);
+    public ArrayList<String> getErrores() {
+        return new ArrayList<String>(this.erroresLexicos);
     }
 
     public int getNumeroLinea() {

@@ -5,7 +5,7 @@
 package compilador;
 
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  *
@@ -16,8 +16,8 @@ public class Compilador {
     private TablaSimbolos tablaSimbolos;
     private AnalizadorLexico analLex;
     private Parser analSint;
-    private Vector<String> assembler;
-    private Vector<ElementoPolaca> polaca;
+    private ArrayList<String> assembler;
+    private ArrayList<ElementoPolaca> polaca;
 
     
     // atributos auxiliares para generación de código
@@ -32,14 +32,15 @@ public class Compilador {
     public String compilar(Archivo arch) {
         this.analLex = new AnalizadorLexico(arch, this.tablaSimbolos);
         this.analSint = new Parser(this.analLex);
-        // se corre la compilaciÃ³n
+        // se corre la compilacion
         //try{
             this.analSint.run();
             this.generarAssembler();
-            Vector<String> salida = new Vector<String>();
+            ArrayList<String> salida = new ArrayList<String>();
             salida.add("Compilando código fuente");
             salida.add("---------------------------------");
-            salida.add(this.getAssembler());
+            if(this.assembler != null)
+                salida.add(this.getAssembler());
             String out = "";
             for (int i=0;i<salida.size();i++) {
                 out = out + salida.get(i) + "\n";
@@ -56,19 +57,19 @@ public class Compilador {
     }
 
     public String getErrores() {
-        Vector<String> salida = new Vector<String>();
-        Vector<String> erroresLexicos = this.analLex.getErrores();
+        ArrayList<String> salida = new ArrayList<String>();
+        ArrayList<String> erroresLexicos = this.analLex.getErrores();
         if (!erroresLexicos.isEmpty()) {
             salida.add("ERRORES LÉXICOS:");
             salida.addAll(erroresLexicos);
         }
         salida.add("---------------------------------");
-        Vector<String> erroresSintacticos = this.analSint.getErrores(); // harcodeo
+        ArrayList<String> erroresSintacticos = this.analSint.getErrores(); // harcodeo
         if (!erroresSintacticos.isEmpty()) {
             salida.add("ERRORES SINTÁCTICOS:");
             salida.addAll(erroresSintacticos);
         }
-        Vector<String> erroresSemanticos = this.analSint.getErroresSemanticos();
+        ArrayList<String> erroresSemanticos = this.analSint.getErroresSemanticos();
         if (!erroresSemanticos.isEmpty()) {
             salida.add("ERRORES SEMÁNTICOS:");
             salida.addAll(erroresSemanticos);
@@ -85,7 +86,7 @@ public class Compilador {
     }
     
     public String getPolacaInversa(){
-        Vector<ElementoPolaca> pol = this.analSint.getPolacaInversa();
+        ArrayList<ElementoPolaca> pol = this.analSint.getPolacaInversa();
         String polacaInversa = "";
         for(int i = 0; i < pol.size();i++){
             polacaInversa = polacaInversa + pol.get(i) + "\n";
@@ -199,7 +200,7 @@ public class Compilador {
             this.polaca = this.analSint.getPolacaInversa();
             this.bancoRegistros = new BancoRegistros();
             // Prepara el código assembler
-            this.assembler = new Vector<String>();
+            this.assembler = new ArrayList<String>();
             // Lo genera
             this.generarHeaderAssembler();
             this.generarData();
