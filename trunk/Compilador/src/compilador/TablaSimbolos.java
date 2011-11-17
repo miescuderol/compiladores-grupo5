@@ -35,7 +35,7 @@ public class TablaSimbolos implements Iterable<String> {
     public final static int END=273;
     public final static int STRUCT=274;
     public final static int CTE_ULON=275;
-    public final static int ERROR=276;
+    public final static int YYERRCODE=256;
     
     public TablaSimbolos() {
         // Inicializamos la lista de palabras reservadas
