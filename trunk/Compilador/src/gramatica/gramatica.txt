@@ -4,7 +4,7 @@ import compilador.AnalizadorLexico;
 import compilador.Token;
 import compilador.Entrada;
 import compilador.ElementoPolaca;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -41,23 +41,25 @@ declaracion : tipo lista_variables ';' {
                                          this.identificadores.clear();
                                        }
             | estructura ID ';' {    // Recupero la tabla de simbolos
-                                  TablaSimbolos t = anaLex.getTablaSimbolos();
-                                  // Recupero la entrada de la estructura padre
-                                  Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
-                                  padre.setTipo_dato(Tipo.STRUCT);
-                                  int distancia_acumulada = 0;
-                                  for (int i=0;i<elemento_estructuras.size();i++) {
-                                      Entrada e = t.get(elemento_estructuras.get(i));
-                                      t.removeEntrada(e.getNombre());
-                                      Entrada eNueva = new EntradaEstructura(e.getNombre(), e.getTipo(), e.getValor(),padre,distancia_acumulada);
-                                      eNueva.setTipo_dato(e.getTipo_dato());
-                                      t.addNuevaEntrada(eNueva);
-                                      // Actualizo la distancia
-                                      if (e.getTipo_dato()==Tipo.INTEGER)
-                                          distancia_acumulada = distancia_acumulada + 2;
-                                      else if (e.getTipo_dato()==Tipo.ULONGINT)
-                                          distancia_acumulada = distancia_acumulada + 4;
-                                  }}
+                                    TablaSimbolos t = anaLex.getTablaSimbolos();
+                                    // Recupero la entrada de la estructura padre
+                                    Entrada padre = t.get(((Entrada)val_peek(1).obj).getNombre());
+                                    padre.setTipo_dato(Tipo.STRUCT);
+                                    int distancia_acumulada = 0;
+                                    for (int i=0;i<elemento_estructuras.size();i++) {
+                                        Entrada e = t.get(elemento_estructuras.get(i));
+                                        t.removeEntrada(e.getNombre());
+                                        Entrada eNueva = new EntradaEstructura(e.getNombre(), e.getTipo(), e.getValor(),padre,distancia_acumulada);
+                                        eNueva.setTipo_dato(e.getTipo_dato());
+                                        t.addNuevaEntrada(eNueva);
+                                        // Actualizo la distancia
+                                        if (e.getTipo_dato()==Tipo.INTEGER)
+                                            distancia_acumulada = distancia_acumulada + 2;
+                                        else if (e.getTipo_dato()==Tipo.ULONGINT)
+                                            distancia_acumulada = distancia_acumulada + 4;
+                                    }
+                                    padre.setTamanio(distancia_acumulada);
+                                  }
 
             | tipo  ';' { yyerror("falta nombre de variable en declaracion.");}
             | estructura ';' {yyerror("falta nombre de la estructura en declaraciï¿½n.");}
@@ -72,7 +74,7 @@ tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
      | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
 ;
 
-estructura : STRUCT {yyout("Sentencia de declaracion de estructura"); elemento_estructuras = new Vector<String>();} '{' cuerpo_estructura '}'
+estructura : STRUCT {yyout("Sentencia de declaracion de estructura"); elemento_estructuras = new ArrayList<String>();} '{' cuerpo_estructura '}'
 ;
 
 cuerpo_estructura : tipo ID ';' {
@@ -86,8 +88,16 @@ cuerpo_estructura : tipo ID ';' {
 		  | tipo ID cuerpo_estructura { yyerror("se esperaba ';'.");}
 ;
 
-lista_variables : ID {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
-                | ID ',' lista_variables {this.identificadores.add(anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()));}
+lista_variables :  ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                       if (!(this.estaRedeclarada(e))) {
+                         this.identificadores.add(e);
+                       }
+                      }
+                 | ID ',' lista_variables { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                                            if (!(this.estaRedeclarada(e))) {
+	                                        this.identificadores.add(e);
+                                            }
+                                         }
 ;
 
 bloque : sentencia   {yyout("Una sola sentencia.");}
@@ -197,19 +207,52 @@ termino : termino '*' factor {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyou
         | termino '/'   { yyerror("se esperaba un factor luego de '/'.");}
 ;
 
-factor : factor_for
+factor : factor_comun
        | elemento_estructura
 ;
 
+factor_comun : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                 estaDeclarada(e);
+                 agregarAPolacaId(e);}
+           | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                          estaDeclarada(e);
+                          agregarAPolacaConstante(e);}
+           | CTE_INT       { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                             e.visitar();
+                             fueraRangoIntPositivo((Entrada)$1.obj);
+                             agregarAPolacaConstante((Entrada)$1.obj); }
+           | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
+    				if (!(actual).isVisitado()) {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
+        			e.setTipo_dato(Tipo.INTEGER);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+        			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
+ 				agregarAPolacaConstante(e);
+    				} else {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+ 				agregarAPolacaConstante(e);
+ 				}
+			    }
+;
+
 elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");
-                                  estructuraPolaca = (Entrada)$3.obj;}
+                                  estructuraPolaca = (Entrada)$3.obj;
+                                  
+                                  Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+	                          EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)$3.obj).getNombre()));
+	                          if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
+	                               this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
+	                           }
+
+                                  }
 
                     | ID ID    { yyerror("se esperaba un punto.");}
                     | ID '.'   { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
                     | '.' ID   { yyerror("se esperaba identificador de la estructura antes del punto.");}
 ;
 
-bucle :  FOR condicion_for bloque ';'   {agregarAPolacaDecremento();
+bucle :  FOR  condicion_for bloque ';'   {agregarAPolacaDecremento();
                                          apilar(ElementoPolaca.BI);
                                          desapilarDireccion();
                                          desapilar(0);
@@ -223,13 +266,15 @@ bucle :  FOR condicion_for bloque ';'   {agregarAPolacaDecremento();
 
 condicion_for : '(' ID ASIGN factor_for ';' { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
                                               estaDeclarada(e);
+                                              this.elementosDelFor.add(0,e); // agrego la entrada del ID a los elementos del for en la posicion 0
+
                                               guardarIndiceFor((Entrada)$2.obj);
                                               agregarAPolacaId((Entrada)$2.obj);
                                               agregarAPolaca(ElementoPolaca.ASIGNACION);
                                               agregarRotulo();
                                               apilarDireccion();
                                               } comparacion_for
-                                              
+
               | ID ASIGN factor_for ';' comparacion_for  { yyerror("se esperaba '(' antes de la condicion.");}
               | '(' ASIGN factor_for  ';' comparacion_for  { yyerror("se esperaba un identificador antes del operador de asignacion.");}
               | '(' ID ASIGN ';' comparacion_for  { yyerror("se esperaba un identificador o constante despues del operador de asignacion.");}
@@ -246,7 +291,7 @@ comparacion_for : factor_for '>' factor_for ';' {agregarAPolaca(ElementoPolaca.M
               |  factor_for '>' factor_for error decremento_for  { yyerror("se esperaba ';'.");}
 ;
 
-decremento_for : {almacenarDecremento = true;} factor_for ')' {almacenarDecremento = false;}
+decremento_for : {almacenarDecremento = true;} factor_for ')' {almacenarDecremento = false; controlarTiposFor();}
 
               |  ')'     { yyerror("se esperaba un identificador o constante despues de ';'.");}
 ;
@@ -254,20 +299,29 @@ decremento_for : {almacenarDecremento = true;} factor_for ')' {almacenarDecremen
 
 factor_for : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                  estaDeclarada(e);
-                 agregarAPolacaId((Entrada)$1.obj);}
-           | CTE_ULON    {agregarAPolacaConstante((Entrada)$1.obj);}
-           | CTE_INT       { anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre()).visitar();
+                 this.elementosDelFor.add(e);
+                 agregarAPolacaId(e);}
+           | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                          estaDeclarada(e);
+                          this.elementosDelFor.add(e);
+                          agregarAPolacaConstante(e);}
+           | CTE_INT       { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                             this.elementosDelFor.add(e);
+                             e.visitar();
                              fueraRangoIntPositivo((Entrada)$1.obj);
                              agregarAPolacaConstante((Entrada)$1.obj); }
            | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
     				if (!(actual).isVisitado()) {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
+        			e.setTipo_dato(Tipo.INTEGER);
         			anaLex.getTablaSimbolos().addNuevaEntrada(e);
         			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
+        			elementosDelFor.add(e);
  				agregarAPolacaConstante(e);
     				} else {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
         			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+        			elementosDelFor.add(e);
  				agregarAPolacaConstante(e);
  				}
 			    }
@@ -288,22 +342,25 @@ impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresion.");
 %%
 
 private AnalizadorLexico anaLex;
-private Vector<String> errores;
-private Vector<String> tokens;
-private Vector<String> salida;
-private Vector<String> elemento_estructuras;
+private ArrayList<String> errores;
+private ArrayList<String> tokens;
+private ArrayList<String> salida;
+private ArrayList<String> elemento_estructuras;
 private String error_anterior;
 private int linea_error_anterior;
 
 // para manejo de los tipos de datos
 private Tipo tipo_dato;
-private Vector<Entrada> identificadores = new Vector<Entrada>();
+private ArrayList<Entrada> identificadores = new ArrayList<Entrada>();
 
 // para manejo de errores semanticos
-private Vector<String> erroresSemanticos = new Vector<String>();
+private ArrayList<String> erroresSemanticos = new ArrayList<String>();
+
+// para control de tipos en el for
+private ArrayList<Entrada> elementosDelFor = new ArrayList<Entrada>();
 
 //para manejo de polaca inversa
-private Vector<ElementoPolaca> polacaInversa = new Vector<ElementoPolaca>();
+private ArrayList<ElementoPolaca> polacaInversa = new ArrayList<ElementoPolaca>();
 private Stack<Integer> pila=new Stack();
 private Stack<Integer> retornos=new Stack();
 private Entrada indiceFor;
@@ -318,9 +375,9 @@ public static final float MAX_ULONGINTEGER = 4294967295f;
 public Parser(AnalizadorLexico analLex){
   anaLex=analLex;
   error_anterior = "";
-  errores = new Vector<String>();
-  tokens = new Vector<String>();
-  salida = new Vector<String>();
+  errores = new ArrayList<String>();
+  tokens = new ArrayList<String>();
+  salida = new ArrayList<String>();
 }
 
 int yylex() {
@@ -337,25 +394,25 @@ void yyout(String texto) {
 
 void yyerror(String texto) {
      if(!texto.equals("syntax error"))
-          errores.add("En linea: " + anaLex.getNumeroLinea() + " se encontro el error: " + texto);
+          errores.add("En linea " + anaLex.getNumeroLinea() + ": se encontro el error: " + texto);
      else{
          if(error_anterior.equals(texto))
-              errores.add("En linea: " + linea_error_anterior + " ocurrio un error sintactico");
+              errores.add("En linea " + linea_error_anterior + ": ocurrio un error sintactico");
      }
      linea_error_anterior = anaLex.getNumeroLinea();
      error_anterior = texto;
 }
 
-public Vector<String> getErrores(){
+public ArrayList<String> getErrores(){
 	return this.errores;
 }
 
-public Vector<String> getTokens(){
+public ArrayList<String> getTokens(){
         return this.tokens;
 }
 
-public Vector<String> getSalida(){
-   Vector<String> retorno = new Vector<String>();
+public ArrayList<String> getSalida(){
+   ArrayList<String> retorno = new ArrayList<String>();
    retorno.add("Analizador léxico: ");
    retorno.addAll(this.tokens);
    retorno.add("Analizador sintáctico: ");
@@ -369,6 +426,20 @@ private void fueraRangoIntPositivo(Entrada e){
        yyerror("entero fuera de rango [-32768;32767]");
 }
 
+private void controlarTiposFor(){
+    Tipo t = elementosDelFor.elementAt(0).getTipo_dato();
+    int i=0;
+    while ((i<this.elementosDelFor.size()) && (t==this.elementosDelFor.get(i).getTipo_dato())) {
+         i++;
+    }
+    if (i<this.elementosDelFor.size()) {
+        this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Se esperaba un identificador/constante de tipo " 
+                                       + t + " pero se encontro " + this.elementosDelFor.get(i).getTipo_dato());
+       // this.elementosDelFor.clear();
+    }
+
+}
+
 private void setearTipoElementosEstructuras(Entrada e) {
     elemento_estructuras.add(e.getNombre());
     e = anaLex.getTablaSimbolos().get(e.getNombre());
@@ -378,15 +449,24 @@ private void setearTipoElementosEstructuras(Entrada e) {
 
 private void estaDeclarada(Entrada e) {
     if (e.getTipo_dato()==null) {
-        this.erroresSemanticos.add("La variable " + e.getNombre() + " no está declarada.");
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " no esta declarada.");
     }
 }
 
-public Vector<String> getErroresSemanticos() {
+
+private boolean estaRedeclarada(Entrada e) {
+    if (e.getTipo_dato()!=null) {
+        this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " ya esta declarada.");
+        return true;
+    }
+    return false;
+}
+
+public ArrayList<String> getErroresSemanticos() {
     return this.erroresSemanticos;
 }
 
-public Vector<ElementoPolaca> getPolacaInversa(){
+public ArrayList<ElementoPolaca> getPolacaInversa(){
     return this.polacaInversa;
 }
 
