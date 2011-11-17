@@ -119,8 +119,8 @@ public class Compilador {
             // De acuerdo al tipo, reservamos el espacio que corresponda
             if (e.getTipo()==Tipo.ID) {
                 Tipo t = e.getTipo_dato();
-                 if(e.isElementoEstructura){
-                    String renombre = getNombreVariableEstrcutura((EntradaEstructura)e);
+                 if(e.isElementoEstructura()){
+                    String renombre = getNombreVariableEstructura((EntradaEstructura)e);
                     this.assembler.add(renombre + " DD 0");
                 } else
                       this.assembler.add("_"+ e.getNombre() + " DD 0");
@@ -237,7 +237,7 @@ public class Compilador {
             if(!entrada.isElementoEstructura)
                 return "_" + e.getNombre();
             else{
-                return getNombreVariableEstrcutura((EntradaEstructura)entrada);
+                return getNombreVariableEstructura((EntradaEstructura)entrada);
             }
         }
         return e.getNombre();
@@ -410,7 +410,7 @@ public class Compilador {
         return (this.analSint.isCompilable() && this.analLex.getErrores().isEmpty());
     }
 
-    private String getNombreVariableEstrcutura(EntradaEstructura ee) {
+    private String getNombreVariableEstructura(EntradaEstructura ee) {
         String padre = ee.getEstructura().getNombre();
         return "_" + padre + "_" + ee.getNombre();
     }
