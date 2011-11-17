@@ -32,7 +32,7 @@ public class AnalizadorLexico {
         this.archivoTexto = fuente;
         // seteamos la matriz de transición de estados
         this.matrizTransicionEstados = new int[][] {{ 1, 2, 0, 1, 1, 4,13,13, 7,13,13,13,13,13,13, 8,11, 9,10, 12, 0, 0, 13,1,-1},
-                                                    { 1, 1,13, 1, 1,13,13,13,13,13,13,13,13,13,13,13,13,13,13, 13, 13, 13, 13, 1,13},
+                                                    { 1, 1,13, 1, 1,13,13,13,13,13,13,13,13,13,13,13,13,13,13, 13, 13, 13, 13, 1,-1},
                                                     {-1, 2,-1, 3,13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, -1,-1},
                                                     {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 13,-1},
                                                     {13,13,13,13,13,13,13, 5,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13, 13,-1},
@@ -91,9 +91,11 @@ public class AnalizadorLexico {
         if (error!=null) {
             this.erroresLexicos.add("Linea " + numeroLinea + ": " + error);
         }
-        
-        if(estadoActual==AnalizadorLexico.TRANSICION_NO_VALIDA)   //doduso
+        System.out.println("estado actual: " + estadoActual);
+        if(estadoActual==AnalizadorLexico.TRANSICION_NO_VALIDA) {  
+                System.out.println("devolver token error " + AccionSemantica.elementoParcial + " " + TablaSimbolos.YYERRCODE);
                 return new Token(AccionSemantica.elementoParcial, TablaSimbolos.YYERRCODE); //claro queno esta bien
+        }
         
         return accionActual.getToken(); // Retornamos el token armado
     }

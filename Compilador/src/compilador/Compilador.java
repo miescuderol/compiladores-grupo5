@@ -195,7 +195,7 @@ public class Compilador {
     }
     
     private void generarAssembler() {
-        if (this.analSint.isCompilable()) { // si el código no tiene error
+        if (isCompilable()) { // si el código no tiene error
             // Obtengo la polaca inversa y creo el banco de registros
             this.polaca = this.analSint.getPolacaInversa();
             this.bancoRegistros = new BancoRegistros();
@@ -400,6 +400,10 @@ public class Compilador {
         this.assembler.add("MOV EAX , " + this.getNombreVariable(e1));
         this.assembler.add("CMP EAX , " + this.getNombreVariable(e2));
         this.condicionFalsa = instruccion;
+    }
+
+    private boolean isCompilable() {
+        return (this.analSint.isCompilable() && this.analLex.getErrores().isEmpty());
     }
     
     

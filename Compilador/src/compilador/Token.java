@@ -28,7 +28,7 @@ public class Token {
     }
     
     public ParserVal getAtributoYacc() {
-        return null;
+        return new ParserVal(-1);
     }
     
     public int getCodigoYacc() {
