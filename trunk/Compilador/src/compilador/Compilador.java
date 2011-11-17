@@ -5,7 +5,6 @@
 package compilador;
 
 import java.util.ArrayList;
-import java.util.ArrayList;
 
 /**
  *
@@ -111,7 +110,7 @@ public class Compilador {
         // Generación del encabezado
         this.assembler.add(".DATA");
         // Generación de errores
-        this.assembler.add("ERROR_UNDERFLOW_RESTA DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.");
+        this.assembler.add("ERROR_UNDERFLOW_RESTA DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.'");
         this.assembler.add("ERROR_PERDIDA_PRECISION DB 'Error: Conversión implícita generó pérdida de precisión'");
         // Generación de elementos de la tabla de símbolos
         IteradorTablaSimbolos it = this.analLex.getTablaSimbolos().iterator();
@@ -120,15 +119,13 @@ public class Compilador {
             // De acuerdo al tipo, reservamos el espacio que corresponda
             if (e.getTipo()==Tipo.ID) {
                 Tipo t = e.getTipo_dato();
-                if (t==Tipo.INTEGER) {
-                    this.assembler.add("_"+ e.getNombre() + " dd 0");
-                } else if (t==Tipo.ULONGINT) {
-                    this.assembler.add("_"+ e.getNombre() + " dd 0");
-                } else if (t==Tipo.STRUCT) {
-                    this.assembler.add("_"+ e.getNombre() + " dd " + e.getTamanio() + "dup(?)");
-                }                  
+                 if(e.isElementoEstructura){
+                    String renombre = getNombreVariableEstrcutura((EntradaEstructura)e);
+                    this.assembler.add(renombre + " DD 0");
+                } else
+                      this.assembler.add("_"+ e.getNombre() + " DD 0");
             } else if (e.getTipo()==Tipo.CADENA) {
-                this.assembler.add("_" + e.getNombre() + " db '" + e.getNombre()+ "', 0");
+                this.assembler.add("_" + e.getNombre() + " DB '" + e.getNombre()+ "', 0");
             }
         }
     }
@@ -236,7 +233,12 @@ public class Compilador {
     
     private String getNombreVariable(ElementoPolaca e) {
         if (e.getTipo()==ElementoPolaca.VARIABLE) {
-            return "_" + e.getNombre();
+            Entrada entrada = tablaSimbolos.get(e.getNombre());
+            if(!entrada.isElementoEstructura)
+                return "_" + e.getNombre();
+            else{
+                return getNombreVariableEstrcutura((EntradaEstructura)entrada);
+            }
         }
         return e.getNombre();
     }
@@ -250,6 +252,7 @@ public class Compilador {
             }
         }
     }
+    
     
     private void generarCodigoConversionImplicita(ElementoPolaca elementoConflicto) {
         this.assembler.add("CMP " + this.getNombreVariable(elementoConflicto) + ", 0");
@@ -406,9 +409,10 @@ public class Compilador {
     private boolean isCompilable() {
         return (this.analSint.isCompilable() && this.analLex.getErrores().isEmpty());
     }
-    
-    
-    
-    
+
+    private String getNombreVariableEstrcutura(EntradaEstructura ee) {
+        String padre = ee.getEstructura().getNombre();
+        return "_" + padre + "_" + ee.getNombre();
+    }
     
 }
