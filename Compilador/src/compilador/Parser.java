@@ -629,7 +629,7 @@ final static String yyrule[] = {
 "impresion : PRINT '(' CADENA ')' error",
 };
 
-//#line 342 "gramatica.txt"
+//#line 347 "gramatica.txt"
 
 
 private AnalizadorLexico anaLex;
@@ -646,6 +646,7 @@ private ArrayList<Entrada> identificadores;
 
 // para manejo de errores semanticos
 private ArrayList<String> erroresSemanticos;
+private Tipo tipoExpresion;
 
 // para control de tipos en el for
 private ArrayList<Entrada> elementosDelFor;
@@ -673,6 +674,7 @@ public Parser(AnalizadorLexico analLex){
   elementosDelFor = new ArrayList<Entrada>();
   erroresSemanticos = new ArrayList<String>();
   identificadores = new ArrayList<Entrada>();
+  tipoExpresion = Tipo.INTEGER;
 }
 
 int yylex() {
@@ -735,6 +737,11 @@ private void controlarTiposFor(){
     this.elementosDelFor.clear();
 }
 
+private void comtrolarTipoAsignacion(Entrada id){
+	if((id.getTipo_dato() == Tipo.INTEGER) && (tipoExpresion == Tipo.ULONGINT))
+		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
+}
+
 private void setearTipoElementosEstructuras(Entrada e) {
     elemento_estructuras.add(e.getNombre());
     e = anaLex.getTablaSimbolos().get(e.getNombre());
@@ -742,10 +749,12 @@ private void setearTipoElementosEstructuras(Entrada e) {
     this.tipo_dato = null;
 }
 
-private void estaDeclarada(Entrada e) {
+private boolean estaDeclarada(Entrada e) {
     if (e.getTipo_dato()==null) {
         this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - La variable " + e.getNombre() + " no esta declarada.");
+		return false;
     }
+	return true;
 }
 
 
@@ -835,7 +844,7 @@ private void desapilarDireccion() {
         int direccion=retornos.pop();
         polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
-//#line 767 "Parser.java"
+//#line 776 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1330,65 +1339,69 @@ case 93:
 {
                                         Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(3).obj).getNombre());
                                         estaDeclarada(e);
+										comtrolarTipoAsignacion((Entrada)val_peek(3).obj);
+										tipoExpresion = Tipo.INTEGER;
                                         agregarAPolacaId((Entrada)val_peek(3).obj);
                                         agregarAPolaca(ElementoPolaca.ASIGNACION);
                                     }
 break;
 case 94:
-//#line 193 "gramatica.txt"
+//#line 195 "gramatica.txt"
 {yyout("Asignacion a elemento de estructura.");
                                                          agregarAPolacaId(estructuraPolaca);
                                                          agregarAPolaca(ElementoPolaca.ASIGNACION);}
 break;
 case 95:
-//#line 197 "gramatica.txt"
+//#line 199 "gramatica.txt"
 { yyerror("se esperaba el operador de asignacion ':='.");}
 break;
 case 96:
-//#line 198 "gramatica.txt"
+//#line 200 "gramatica.txt"
 { yyerror("se esperaba una expresion del lado derecho de la asignacion.");}
 break;
 case 97:
-//#line 199 "gramatica.txt"
+//#line 201 "gramatica.txt"
 { yyerror("se esperaba ';'.");}
 break;
 case 98:
-//#line 202 "gramatica.txt"
+//#line 204 "gramatica.txt"
 {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyout("Sentencia de producto.");}
 break;
 case 99:
-//#line 203 "gramatica.txt"
+//#line 205 "gramatica.txt"
 {agregarAPolaca(ElementoPolaca.DIVISION);yyout("Sentencia de division.");}
 break;
 case 101:
-//#line 206 "gramatica.txt"
+//#line 208 "gramatica.txt"
 { yyerror("se esperaba un factor luego de '*'.");}
 break;
 case 102:
-//#line 207 "gramatica.txt"
+//#line 209 "gramatica.txt"
 { yyerror("se esperaba un factor luego de '/'.");}
 break;
 case 105:
-//#line 214 "gramatica.txt"
+//#line 216 "gramatica.txt"
 {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                  estaDeclarada(e);
+				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
                  agregarAPolacaId(e);}
 break;
 case 106:
-//#line 217 "gramatica.txt"
+//#line 220 "gramatica.txt"
 {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                           estaDeclarada(e);
+						  tipoExpresion = Tipo.ULONGINT;
                           agregarAPolacaConstante(e);}
 break;
 case 107:
-//#line 220 "gramatica.txt"
+//#line 224 "gramatica.txt"
 { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                              e.visitar();
                              fueraRangoIntPositivo((Entrada)val_peek(0).obj);
                              agregarAPolacaConstante((Entrada)val_peek(0).obj); }
 break;
 case 108:
-//#line 224 "gramatica.txt"
+//#line 228 "gramatica.txt"
 {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
     				if (!(actual).isVisitado()) {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
@@ -1404,32 +1417,33 @@ case 108:
 			    }
 break;
 case 109:
-//#line 239 "gramatica.txt"
+//#line 243 "gramatica.txt"
 {yyout("Elemento de estructura.");
-                                  estructuraPolaca = (Entrada)val_peek(0).obj;
-                                  
+                                  Entrada e = (Entrada)val_peek(0).obj;
+                                  estructuraPolaca = e;
                                   Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)val_peek(2).obj).getNombre());
-	                          EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre()));
-	                          if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
-	                               this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
-	                           }
-
+                                  if(estaDeclarada(e)){
+	                                 EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre()));
+	                                 if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
+	                                    this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
+	                                 }
+                                  } 
                                   }
 break;
 case 110:
-//#line 250 "gramatica.txt"
+//#line 255 "gramatica.txt"
 { yyerror("se esperaba un punto.");}
 break;
 case 111:
-//#line 251 "gramatica.txt"
+//#line 256 "gramatica.txt"
 { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
 break;
 case 112:
-//#line 252 "gramatica.txt"
+//#line 257 "gramatica.txt"
 { yyerror("se esperaba identificador de la estructura antes del punto.");}
 break;
 case 113:
-//#line 255 "gramatica.txt"
+//#line 260 "gramatica.txt"
 {agregarAPolacaDecremento();
                                          apilar(ElementoPolaca.BI);
                                          desapilarDireccion();
@@ -1438,15 +1452,15 @@ case 113:
                                          yyout("Bucle for.");}
 break;
 case 114:
-//#line 262 "gramatica.txt"
+//#line 267 "gramatica.txt"
 {yyerror("se esperaba un bloque de sentencias, pero se encontro ';'.");}
 break;
 case 115:
-//#line 263 "gramatica.txt"
+//#line 268 "gramatica.txt"
 { yyerror("se esperaba ';'.");}
 break;
 case 116:
-//#line 267 "gramatica.txt"
+//#line 272 "gramatica.txt"
 { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(3).obj).getNombre());
                                               estaDeclarada(e);
                                               this.elementosDelFor.add(0,e); /* agrego la entrada del ID a los elementos del for en la posicion 0
@@ -1460,74 +1474,74 @@ case 116:
                                               }
 break;
 case 118:
-//#line 278 "gramatica.txt"
+//#line 283 "gramatica.txt"
 { yyerror("se esperaba '(' antes de la condicion.");}
 break;
 case 119:
-//#line 279 "gramatica.txt"
+//#line 284 "gramatica.txt"
 { yyerror("se esperaba un identificador antes del operador de asignacion.");}
 break;
 case 120:
-//#line 280 "gramatica.txt"
+//#line 285 "gramatica.txt"
 { yyerror("se esperaba un identificador o constante despues del operador de asignacion.");}
 break;
 case 121:
-//#line 281 "gramatica.txt"
+//#line 286 "gramatica.txt"
 { yyerror("se esperaba operador de asignacion.");}
 break;
 case 122:
-//#line 282 "gramatica.txt"
+//#line 287 "gramatica.txt"
 { yyerror("se esperaba ';'.");}
 break;
 case 123:
-//#line 285 "gramatica.txt"
+//#line 290 "gramatica.txt"
 {agregarAPolaca(ElementoPolaca.MAYOR);
                                                  apilar(ElementoPolaca.BF);}
 break;
 case 125:
-//#line 288 "gramatica.txt"
+//#line 293 "gramatica.txt"
 { yyerror("se esperaba un identificador o constante antes de '>'.");}
 break;
 case 126:
-//#line 289 "gramatica.txt"
+//#line 294 "gramatica.txt"
 { yyerror("se esperaba un identificador o constante despues '>'.");}
 break;
 case 127:
-//#line 290 "gramatica.txt"
+//#line 295 "gramatica.txt"
 { yyerror("se esperaba '>'.");}
 break;
 case 129:
-//#line 291 "gramatica.txt"
+//#line 296 "gramatica.txt"
 { yyerror("se esperaba ';'.");}
 break;
 case 130:
-//#line 294 "gramatica.txt"
+//#line 299 "gramatica.txt"
 {almacenarDecremento = true;}
 break;
 case 131:
-//#line 294 "gramatica.txt"
+//#line 299 "gramatica.txt"
 {almacenarDecremento = false; controlarTiposFor();}
 break;
 case 132:
-//#line 296 "gramatica.txt"
+//#line 301 "gramatica.txt"
 { yyerror("se esperaba un identificador o constante despues de ';'.");}
 break;
 case 133:
-//#line 300 "gramatica.txt"
+//#line 305 "gramatica.txt"
 {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                  estaDeclarada(e);
                  this.elementosDelFor.add(e);
                  agregarAPolacaId(e);}
 break;
 case 134:
-//#line 304 "gramatica.txt"
+//#line 309 "gramatica.txt"
 {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                           estaDeclarada(e);
                           this.elementosDelFor.add(e);
                           agregarAPolacaConstante(e);}
 break;
 case 135:
-//#line 308 "gramatica.txt"
+//#line 313 "gramatica.txt"
 { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                              this.elementosDelFor.add(e);
                              e.visitar();
@@ -1535,7 +1549,7 @@ case 135:
                              agregarAPolacaConstante((Entrada)val_peek(0).obj); }
 break;
 case 136:
-//#line 313 "gramatica.txt"
+//#line 318 "gramatica.txt"
 {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
     				if (!(actual).isVisitado()) {
         			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
@@ -1553,32 +1567,32 @@ case 136:
 			    }
 break;
 case 137:
-//#line 330 "gramatica.txt"
+//#line 335 "gramatica.txt"
 {yyout("Sentencia de impresion.");
                                       agregarAPolacaConstante((Entrada)val_peek(2).obj);
                                       agregarAPolaca(ElementoPolaca.PRINT);}
 break;
 case 138:
-//#line 334 "gramatica.txt"
+//#line 339 "gramatica.txt"
 { yyerror("se esperaba 'print'");}
 break;
 case 139:
-//#line 335 "gramatica.txt"
+//#line 340 "gramatica.txt"
 { yyerror("se esperaba una cadena dentro de la instruccion print.");}
 break;
 case 140:
-//#line 336 "gramatica.txt"
+//#line 341 "gramatica.txt"
 { yyerror("se esperaba '(' antes de la cadena en sentencia print.");}
 break;
 case 141:
-//#line 337 "gramatica.txt"
+//#line 342 "gramatica.txt"
 { yyerror("sentencia print sin parentesis de cierre.");}
 break;
 case 142:
-//#line 339 "gramatica.txt"
+//#line 344 "gramatica.txt"
 { yyerror("se esperaba ';.'");}
 break;
-//#line 1501 "Parser.java"
+//#line 1515 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
