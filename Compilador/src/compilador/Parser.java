@@ -742,6 +742,8 @@ private void controlarTipoAsignacion(Entrada id){
 		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
 	else if (id.getTipo_dato() == Tipo.STRUCT)
 			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
+	else if (tipoExpresion == Tipo.STRUCT)
+			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura en una expresion");
 }
 
 private void setearTipoElementosEstructuras(Entrada e) {
@@ -846,7 +848,7 @@ private void desapilarDireccion() {
         int direccion=retornos.pop();
         polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
-//#line 778 "Parser.java"
+//#line 780 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1388,7 +1390,7 @@ case 105:
 //#line 219 "gramatica.txt"
 {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre());
                  estaDeclarada(e);
-				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
+				 if(e.getTipo_dato() != Tipo.INTEGER) tipoExpresion = e.getTipo_dato();
                  agregarAPolacaId(e);}
 break;
 case 106:
@@ -1598,7 +1600,7 @@ case 142:
 //#line 348 "gramatica.txt"
 { yyerror("se esperaba ';.'");}
 break;
-//#line 1521 "Parser.java"
+//#line 1523 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

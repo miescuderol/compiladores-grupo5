@@ -218,7 +218,7 @@ factor : factor_comun
 
 factor_comun : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                  estaDeclarada(e);
-				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
+				 if(e.getTipo_dato() != Tipo.INTEGER) tipoExpresion = e.getTipo_dato();
                  agregarAPolacaId(e);}
            | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                           estaDeclarada(e);
@@ -460,6 +460,8 @@ private void controlarTipoAsignacion(Entrada id){
 		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
 	else if (id.getTipo_dato() == Tipo.STRUCT)
 			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
+	else if (tipoExpresion == Tipo.STRUCT)
+			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura en una expresion");
 }
 
 private void setearTipoElementosEstructuras(Entrada e) {
