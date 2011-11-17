@@ -93,7 +93,7 @@ public class AnalizadorLexico {
         }
         
         if(estadoActual==AnalizadorLexico.TRANSICION_NO_VALIDA)   //doduso
-                return new Token(AccionSemantica.elementoParcial, TablaSimbolos.ERROR); //claro queno esta bien
+                return new Token(AccionSemantica.elementoParcial, TablaSimbolos.YYERRCODE); //claro queno esta bien
         
         return accionActual.getToken(); // Retornamos el token armado
     }
