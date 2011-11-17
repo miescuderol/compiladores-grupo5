@@ -689,6 +689,7 @@ void yyout(String texto) {
 
 }
 
+
 void yyerror(String texto) {
      if(!texto.equals("syntax error"))
           errores.add("En linea " + anaLex.getNumeroLinea() + ": se encontro el error: " + texto);

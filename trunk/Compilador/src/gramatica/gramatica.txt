@@ -69,6 +69,7 @@ declaracion : tipo lista_variables ';' {
             | estructura ID { yyerror("se esperaba ';'.");}
 ;
 
+
 tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
      | ULONGINT {this.tipo_dato=Tipo.ULONGINT;}
      | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
@@ -428,9 +429,9 @@ public ArrayList<String> getTokens(){
 
 public ArrayList<String> getSalida(){
    ArrayList<String> retorno = new ArrayList<String>();
-   retorno.add("Analizador léxico: ");
+   retorno.add("Analizador lï¿½xico: ");
    retorno.addAll(this.tokens);
-   retorno.add("Analizador sintáctico: ");
+   retorno.add("Analizador sintï¿½ctico: ");
    retorno.addAll(this.salida);
    return retorno;
 }
