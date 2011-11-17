@@ -27,7 +27,6 @@ public class AnalizadorLexico {
     public static final int ESTADO_FINAL = 13;
     
     public AnalizadorLexico(Archivo fuente, TablaSimbolos t) {
-        numeroLinea = 0;
         // seteamos el archivo con el código fuente del programa que estamos parseando
         this.archivoTexto = fuente;
         // seteamos la matriz de transición de estados

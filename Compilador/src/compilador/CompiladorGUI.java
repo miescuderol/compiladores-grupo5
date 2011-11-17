@@ -266,12 +266,12 @@ private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 // Se crea el archivo fuente
                 this.archivoFuente = new Archivo(file);
                 // Se muestra el código fuente por pantalla
-                 String cod = this.archivoFuente.toString();
-               String pantalla = "0\t";
+               String cod = this.archivoFuente.toString();
+               String pantalla = "1\t";
                int nroLinea=1;
                for (int i=0;i<cod.length();i++) {
                    if (cod.charAt(i)=='\n') {
-                       pantalla = pantalla + "\n" + nroLinea++ + "\t";
+                       pantalla = pantalla + "\n" + ++nroLinea + "\t";
                    } else {
                        pantalla = pantalla + cod.charAt(i);
                    }
