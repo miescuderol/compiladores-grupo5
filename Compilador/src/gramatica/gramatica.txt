@@ -187,12 +187,15 @@ expresion : expresion '+' termino {agregarAPolaca(ElementoPolaca.SUMA);yyout("Se
 asignacion : ID ASIGN expresion ';' {
                                         Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                                         estaDeclarada(e);
-										comtrolarTipoAsignacion((Entrada)$1.obj);
+										System.out.println("tipo token de la entrada: " + e.getTipo());
+										controlarTipoAsignacion((Entrada)$1.obj);
 										tipoExpresion = Tipo.INTEGER;
                                         agregarAPolacaId((Entrada)$1.obj);
                                         agregarAPolaca(ElementoPolaca.ASIGNACION);
                                     }
            | elemento_estructura ASIGN expresion ';'    {yyout("Asignacion a elemento de estructura.");
+														 controlarTipoAsignacion((Entrada)$1.obj);
+														 tipoExpresion = Tipo.INTEGER;
                                                          agregarAPolacaId(estructuraPolaca);
                                                          agregarAPolaca(ElementoPolaca.ASIGNACION);}
 
@@ -250,6 +253,7 @@ elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");
 	                                    this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
 	                                 }
                                   } 
+								  $$ = $3;
                                   }
 
                     | ID ID    { yyerror("se esperaba un punto.");}
@@ -451,9 +455,11 @@ private void controlarTiposFor(){
     this.elementosDelFor.clear();
 }
 
-private void comtrolarTipoAsignacion(Entrada id){
+private void controlarTipoAsignacion(Entrada id){
 	if((id.getTipo_dato() == Tipo.INTEGER) && (tipoExpresion == Tipo.ULONGINT))
 		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
+	else if (id.getTipo_dato() == Tipo.STRUCT)
+			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
 }
 
 private void setearTipoElementosEstructuras(Entrada e) {
