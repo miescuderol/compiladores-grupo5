@@ -33,7 +33,7 @@ public class Compilador {
         this.analLex = new AnalizadorLexico(arch, this.tablaSimbolos);
         this.analSint = new Parser(this.analLex);
         // se corre la compilacion
-        //try{
+//        try{
             this.analSint.run();
             this.generarAssembler();
             ArrayList<String> salida = new ArrayList<String>();
@@ -46,9 +46,9 @@ public class Compilador {
                 out = out + salida.get(i) + "\n";
             }
             return out;
-        /*}catch(RuntimeException re){
-            return ("El programa tiene errores");
-        }*/
+//        }catch(RuntimeException re){
+//            return ("El programa tiene errores");
+//        }
         
     }
 

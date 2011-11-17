@@ -18,7 +18,7 @@ public class AnalizadorLexico {
     private int[][] matrizTransicionEstados;
     private AccionSemantica[][] matrizAccionesSemanticas;
     private ArrayList<String> erroresLexicos;
-    private static int numeroLinea = 1;
+    private static int numeroLinea;
     private TablaSimbolos tb;
     
     // Constantes
@@ -27,6 +27,7 @@ public class AnalizadorLexico {
     public static final int ESTADO_FINAL = 13;
     
     public AnalizadorLexico(Archivo fuente, TablaSimbolos t) {
+        numeroLinea = 1;
         // seteamos el archivo con el código fuente del programa que estamos parseando
         this.archivoTexto = fuente;
         // seteamos la matriz de transición de estados
