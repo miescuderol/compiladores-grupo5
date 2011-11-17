@@ -642,16 +642,16 @@ private int linea_error_anterior;
 
 // para manejo de los tipos de datos
 private Tipo tipo_dato;
-private ArrayList<Entrada> identificadores = new ArrayList<Entrada>();
+private ArrayList<Entrada> identificadores;
 
 // para manejo de errores semanticos
-private ArrayList<String> erroresSemanticos = new ArrayList<String>();
+private ArrayList<String> erroresSemanticos;
 
 // para control de tipos en el for
-private ArrayList<Entrada> elementosDelFor = new ArrayList<Entrada>();
+private ArrayList<Entrada> elementosDelFor;
 
 //para manejo de polaca inversa
-private ArrayList<ElementoPolaca> polacaInversa = new ArrayList<ElementoPolaca>();
+private ArrayList<ElementoPolaca> polacaInversa;
 private Stack<Integer> pila=new Stack();
 private Stack<Integer> retornos=new Stack();
 private Entrada indiceFor;
@@ -669,6 +669,10 @@ public Parser(AnalizadorLexico analLex){
   errores = new ArrayList<String>();
   tokens = new ArrayList<String>();
   salida = new ArrayList<String>();
+  polacaInversa = new ArrayList<ElementoPolaca>();
+  elementosDelFor = new ArrayList<Entrada>();
+  erroresSemanticos = new ArrayList<String>();
+  identificadores = new ArrayList<Entrada>();
 }
 
 int yylex() {
@@ -726,9 +730,9 @@ private void controlarTiposFor(){
     if (i<this.elementosDelFor.size()) {
         this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Se esperaba un identificador/constante de tipo " 
                                        + t + " pero se encontro " + this.elementosDelFor.get(i).getTipo_dato());
-       // this.elementosDelFor.clear();
+        
     }
-
+    this.elementosDelFor.clear();
 }
 
 private void setearTipoElementosEstructuras(Entrada e) {
@@ -831,7 +835,7 @@ private void desapilarDireccion() {
         int direccion=retornos.pop();
         polacaInversa.get(pos).setNombre("LABEL_"+Integer.toString(direccion));
 }
-//#line 763 "Parser.java"
+//#line 767 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1574,7 +1578,7 @@ case 142:
 //#line 339 "gramatica.txt"
 { yyerror("se esperaba ';.'");}
 break;
-//#line 1497 "Parser.java"
+//#line 1501 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
