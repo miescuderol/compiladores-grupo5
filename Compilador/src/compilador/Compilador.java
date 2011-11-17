@@ -52,6 +52,7 @@ public class Compilador {
         
     }
 
+    
     public String getContenidoTablaSimbolos() {
         return this.tablaSimbolos.toString();
     }

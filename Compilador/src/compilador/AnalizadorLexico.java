@@ -100,6 +100,7 @@ public class AnalizadorLexico {
         return accionActual.getToken(); // Retornamos el token armado
     }
 
+    
     public ArrayList<String> getErrores() {
         return new ArrayList<String>(this.erroresLexicos);
     }
