@@ -211,7 +211,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
             }
         });
 
-        btnCompilar.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        btnCompilar.setFont(new java.awt.Font("Tahoma", 1, 11));
         btnCompilar.setText("COMPILAR");
         btnCompilar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -220,6 +220,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
         });
 
         guardarAsm.setText("Guardar codigo assembler");
+        guardarAsm.setEnabled(false);
         guardarAsm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 guardarAsmActionPerformed(evt);
@@ -312,15 +313,17 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa());
     if (this.compilador.isCompilable()) {
         this.salidaCompilador.setText(alArchivo); // mostramos la salida del compilador
+        this.guardarAsm.setEnabled(true);
     } else {
         this.salidaCompilador.setText("Ocurrieron errores.\nConsultar pestaña \"Errores\"."); // indicamos la ocurrencia de errores
+        this.guardarAsm.setEnabled(false);
     }
     
 }//GEN-LAST:event_btnCompilarActionPerformed
 
     private void guardarAsmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarAsmActionPerformed
-        String alArchivo = compilador.getAssembler();
         if (this.compilador.isCompilable()) {
+            String alArchivo = compilador.getAssembler();
             FileFilter filt = new FileNameExtensionFilter("Archivo assembler *.ASM", "asm");
             JFileChooser filechooser = new JFileChooser();
             filechooser.setFileFilter(filt);
@@ -335,6 +338,9 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                     Logger.getLogger(CompiladorGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            this.guardarAsm.setEnabled(true);
+        } else {
+            this.guardarAsm.setEnabled(false);
         }
     }//GEN-LAST:event_guardarAsmActionPerformed
 
