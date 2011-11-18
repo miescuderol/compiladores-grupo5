@@ -359,55 +359,105 @@ public class Compilador {
     private void getAssemblerDivision(ElementoPolaca op1, ElementoPolaca op2) {
         // Convierto si es necesario
         this.getAssemblerConversionImplicita(op1, op2);
-        // Verificamos que EDX esté libre
-        Registro registroSalvavidas = null;
-        boolean estabaOcupado = this.bancoRegistros.getRegistro("EDX").isOcupado();
-        if (estabaOcupado) {
-            // Agrego código para salvar el valor que estaba ahí
-            registroSalvavidas = this.bancoRegistros.ocuparRegistroLibre();
-            this.assembler.add("MOV " + registroSalvavidas.getNombre() + " , EDX");
-            this.bancoRegistros.desocuparRegistro("EDX");
+        // Libero EDX y obtengo los operandos
+        String salvavidas = "", nom_op2 = "";
+        boolean flag = false, flag2 =false;
+        /*if (op1.getTipo()==ElementoPolaca.REGISTRO) {
+            this.bancoRegistros.desocuparRegistro(op1.getNombre());
         }
-        // Ponemos en 0 EDX (a donde va a parar el resto de la division) por si no hay resto
-        this.assembler.add("MOV EDX , 0");
-        // Ocupo EDX
-        this.bancoRegistros.ocuparRegistro("EDX");
-        // Preparo el operando 1 en EAX y libero su registro anterior en caso de que haya sido un registro
         this.assembler.add("MOV EAX , " + this.getNombreVariable(op1));
-        this.bancoRegistros.ocuparRegistro("EAX");
+        if (op2.getTipo()==ElementoPolaca.REGISTRO) {
+            if (op2.getNombre().equals("EDX")) {
+                Registro libre = this.bancoRegistros.ocuparRegistroLibre();
+                this.assembler.add("MOV " + libre.getNombre() + " , EDX");
+                nom_op2 = libre.getNombre();
+            } else {
+                nom_op2 = op2.getNombre();
+            }
+        } else {
+            if (this.bancoRegistros.getRegistro("EDX").isOcupado()) {
+                salvavidas = this.bancoRegistros.ocuparRegistroLibre().getNombre();
+                this.assembler.add("MOV " + salvavidas + " , EDX");
+                flag = true;
+            } else {
+                this.bancoRegistros.ocuparRegistro("EDX");
+            }
+            Registro libre = this.bancoRegistros.ocuparRegistroLibre();
+            nom_op2 = libre.getNombre();
+            this.assembler.add("MOV " + nom_op2 + this.getNombreVariable(op2));
+        }*/
+        //---cris
+        Registro libre= null, libre2 = null;
         if (op1.getTipo()==ElementoPolaca.REGISTRO) {
             this.bancoRegistros.desocuparRegistro(op1.getNombre());
         }
-        // Extendemos el signo
-        this.assembler.add("CDQ");
-        // Preparo el operando 2 en un nuevo registro, siempre y cuando no haya sido un registro
-        String nombreRegistroAuxiliar;
-        if (op2.getTipo()!=ElementoPolaca.REGISTRO) {
-            Registro r = this.bancoRegistros.ocuparRegistroLibre();
-            this.assembler.add("MOV " + r.getNombre() + " , " + this.getNombreVariable(op2));
-            nombreRegistroAuxiliar = r.getNombre();
+        this.assembler.add("MOV EAX , " + this.getNombreVariable(op1));
+        if (op2.getTipo()==ElementoPolaca.REGISTRO) {
+            if (op2.getNombre().equals("EDX")) {
+                libre = this.bancoRegistros.ocuparRegistroLibre();
+                this.assembler.add("MOV " + libre.getNombre() + " , EDX");
+                nom_op2 = libre.getNombre();
+                this.assembler.add("MOV EDX , 0");
+                this.assembler.add("CDQ");
+                //estaba ya ocupado y no se livero
+            } else{
+                nom_op2 = this.getNombreVariable(op2);
+                //ya es un registro opero con el
+            }
         } else {
-            nombreRegistroAuxiliar = op2.getNombre();
+            if (this.bancoRegistros.getRegistro("EDX").isOcupado()){
+                //EDX se encuentra ocupado.
+                libre = this.bancoRegistros.ocuparRegistroLibre();
+                this.assembler.add("MOV " + libre.getNombre() + " , EDX");
+                this.bancoRegistros.desocuparRegistro("EDX");
+                flag = true;
+            }
+            this.assembler.add("MOV EDX , 0");
+            this.assembler.add("CDQ");
+            this.bancoRegistros.ocuparRegistro("EDX");
+            libre2 = this.bancoRegistros.ocuparRegistroLibre();
+            this.assembler.add("MOV " + libre2.getNombre() + " , " + this.getNombreVariable(op2));
+            nom_op2 = libre2.getNombre();
         }
-        // Hago la operación
-        if(op1.getTipo_dato()==Tipo.INTEGER) {
-            this.assembler.add("IDIV " + nombreRegistroAuxiliar);
-        } else {
-            this.assembler.add("DIV " + nombreRegistroAuxiliar);
-        }
-        // Libero EAX
-        this.assembler.add("MOV " + nombreRegistroAuxiliar + " , EAX");
-        this.bancoRegistros.desocuparRegistro("EAX");
+        //--cris
+        if ((op1.getTipo()!=ElementoPolaca.REGISTRO)) {
+            if (op1.getTipo_dato() != Tipo.INTEGER)
+                this.assembler.add("DIV " + nom_op2);
+            else
+                this.assembler.add("IDIV " + nom_op2);
+        } 
+        else  
+            if ((op2.getTipo()!=ElementoPolaca.REGISTRO)){
+                if (op2.getTipo_dato() != Tipo.INTEGER)
+                    this.assembler.add("DIV " + nom_op2);
+                else {
+                    this.assembler.add("IDIV " + nom_op2);
+            }
+        };
+        //xx cris
+        this.bancoRegistros.desocuparRegistro(nom_op2);
         this.bancoRegistros.desocuparRegistro("EDX");
-        // Restauro EDX
-        if (estabaOcupado) {
-            // Restauro
-            this.assembler.add("MOV EDX , " + registroSalvavidas.getNombre());
-            registroSalvavidas.desocupar();
+        if (flag){
+            this.assembler.add("MOV EDX , " + libre.getNombre());
+            this.bancoRegistros.desocuparRegistro(libre.getNombre());
             this.bancoRegistros.ocuparRegistro("EDX");
         }
+        libre = this.bancoRegistros.ocuparRegistroLibre();
+        this.assembler.add("MOV " + libre.getNombre()+" , EAX");
+        
+        
+        //xx cris
+    /*
+        if (flag) {
+            this.assembler.add("MOV EDX , " + salvavidas);
+            this.bancoRegistros.desocuparRegistro(salvavidas);
+        } else {
+            this.bancoRegistros.desocuparRegistro("EDX");
+        }
+        Registro resultado = this.bancoRegistros.ocuparRegistroLibre();
+        this.assembler.add("MOV " + resultado.getNombre() + " , EAX");*/
         // Desapilo de la polaca
-        this.desapilarPolaca(new ElementoPolaca(ElementoPolaca.REGISTRO,op1.getTipo_dato(),nombreRegistroAuxiliar));
+        this.desapilarPolaca(new ElementoPolaca(ElementoPolaca.REGISTRO,op1.getTipo_dato(),libre.getNombre()));
     }
 
     private void getAssemblerSalto(String condicionFalsa, ElementoPolaca el) {
