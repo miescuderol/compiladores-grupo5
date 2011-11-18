@@ -234,7 +234,7 @@ public class Compilador {
     private String getNombreVariable(ElementoPolaca e) {
         if (e.getTipo()==ElementoPolaca.VARIABLE) {
             Entrada entrada = tablaSimbolos.get(e.getNombre());
-            if(!entrada.isElementoEstructura)
+            if(!entrada.isElementoEstructura())
                 return "_" + e.getNombre();
             else{
                 return getNombreVariableEstructura((EntradaEstructura)entrada);

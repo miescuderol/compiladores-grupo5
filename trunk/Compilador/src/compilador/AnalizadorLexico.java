@@ -4,7 +4,6 @@
  */
 package compilador;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -91,9 +90,7 @@ public class AnalizadorLexico {
         if (error!=null) {
             this.erroresLexicos.add("Linea " + numeroLinea + ": " + error);
         }
-        System.out.println("estado actual: " + estadoActual);
         if(estadoActual==AnalizadorLexico.TRANSICION_NO_VALIDA) {  
-                System.out.println("devolver token error " + AccionSemantica.elementoParcial + " " + TablaSimbolos.YYERRCODE);
                 return new Token(AccionSemantica.elementoParcial, TablaSimbolos.YYERRCODE); //claro queno esta bien
         }
         
