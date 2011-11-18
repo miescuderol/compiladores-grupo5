@@ -1017,7 +1017,7 @@ boolean doaction;
       debug("state "+yystate+", reducing "+yym+" by rule "+yyn+" ("+yyrule[yyn]+")");
     if (yym>0)                 //if count of rhs not 'nil'
       yyval = val_peek(yym-1); //get current semantic value
-    yyval = dup_yyval(yyval); //duplicate yyval if ParserVal is used as semantic value
+//    yyval = dup_yyval(yyval); //duplicate yyval if ParserVal is used as semantic value
     switch(yyn)
       {
 //########## USER-SUPPLIED ACTIONS ##########
