@@ -12,6 +12,7 @@ package compilador;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -288,11 +289,31 @@ private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
 private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
     this.compilador = new Compilador();
-    this.salidaCompilador.setText(this.compilador.compilar(this.archivoFuente)); // mostramos la salida del compilador
+    String alArchivo = this.compilador.compilar(this.archivoFuente);
     this.errores.setText(this.compilador.getErrores());
     this.tablaSimbolosGrafica.setText(this.compilador.getContenidoTablaSimbolos());
     this.tablaPalabrasReservadas.setText(this.compilador.getPalabrasReservadas());
     this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa());
+    if (this.compilador.isCompilable()) {
+        FileFilter filt = new FileNameExtensionFilter("Archivo assembler *.ASM", "asm");
+        JFileChooser filechooser = new JFileChooser();
+        filechooser.setFileFilter(filt);
+        int returnVal = filechooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                File f = new File(filechooser.getCurrentDirectory() + "\\" + filechooser.getName(filechooser.getSelectedFile()) + ".asm");
+                FileWriter ff = new FileWriter(f);
+                ff.write(alArchivo);
+                ff.close();
+            } catch (IOException ex) {
+                Logger.getLogger(CompiladorGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.salidaCompilador.setText(alArchivo); // mostramos la salida del compilador
+    } else {
+        this.salidaCompilador.setText("Ocurrieron errores.\nConsultar pestaña \"Errores\"."); // indicamos la ocurrencia de errores
+    }
+    
 }//GEN-LAST:event_btnCompilarActionPerformed
 
     /**
