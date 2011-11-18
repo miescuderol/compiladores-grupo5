@@ -69,6 +69,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
         jPanel5 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
         tablaPolacaInversa = new javax.swing.JTextArea();
+        guardarAsm = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Diseño de Compiladores I - Trabajo Práctico 1 y 2 - Grupo 5");
@@ -116,7 +117,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -140,7 +141,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -164,7 +165,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -188,7 +189,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -211,11 +212,18 @@ public class CompiladorGUI extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         tabbedPane.addTab("Polaca inversa", jPanel5);
+
+        guardarAsm.setText("Guardar asm");
+        guardarAsm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guardarAsmActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -229,9 +237,12 @@ public class CompiladorGUI extends javax.swing.JFrame {
                         .addComponent(scrollPaneCodigoFuente, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(btnCompilar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnAbrir, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(btnCompilar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnAbrir, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(guardarAsm))
                             .addComponent(tabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
@@ -243,11 +254,13 @@ public class CompiladorGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnAbrir)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAbrir)
+                            .addComponent(guardarAsm))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCompilar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE))
+                        .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE))
                     .addComponent(scrollPaneCodigoFuente, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
                 .addContainerGap(22, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -295,26 +308,32 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     this.tablaPalabrasReservadas.setText(this.compilador.getPalabrasReservadas());
     this.tablaPolacaInversa.setText(this.compilador.getPolacaInversa());
     if (this.compilador.isCompilable()) {
-        FileFilter filt = new FileNameExtensionFilter("Archivo assembler *.ASM", "asm");
-        JFileChooser filechooser = new JFileChooser();
-        filechooser.setFileFilter(filt);
-        int returnVal = filechooser.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File f = new File(filechooser.getCurrentDirectory() + "\\" + filechooser.getName(filechooser.getSelectedFile()) + ".asm");
-                FileWriter ff = new FileWriter(f);
-                ff.write(alArchivo);
-                ff.close();
-            } catch (IOException ex) {
-                Logger.getLogger(CompiladorGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
         this.salidaCompilador.setText(alArchivo); // mostramos la salida del compilador
     } else {
         this.salidaCompilador.setText("Ocurrieron errores.\nConsultar pestaña \"Errores\"."); // indicamos la ocurrencia de errores
     }
     
 }//GEN-LAST:event_btnCompilarActionPerformed
+
+    private void guardarAsmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarAsmActionPerformed
+        String alArchivo = compilador.getAssembler();
+        if (this.compilador.isCompilable()) {
+            FileFilter filt = new FileNameExtensionFilter("Archivo assembler *.ASM", "asm");
+            JFileChooser filechooser = new JFileChooser();
+            filechooser.setFileFilter(filt);
+            int returnVal = filechooser.showSaveDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    File f = new File(filechooser.getCurrentDirectory() + "\\" + filechooser.getName(filechooser.getSelectedFile()) + ".asm");
+                    FileWriter ff = new FileWriter(f);
+                    ff.write(alArchivo);
+                    ff.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(CompiladorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_guardarAsmActionPerformed
 
     /**
      * @param args the command line arguments
@@ -368,6 +387,7 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JButton btnCompilar;
     private javax.swing.JTextArea codigoFuente;
     private javax.swing.JTextArea errores;
+    private javax.swing.JButton guardarAsm;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

@@ -119,11 +119,13 @@ public class Compilador {
                 Tipo t = e.getTipo_dato();
                  if(e.isElementoEstructura()){
                     String renombre = getNombreVariableEstructura((EntradaEstructura)e);
-                    this.assembler.add(renombre + " DD 0");
+                    this.assembler.add(renombre + " dd 0");
                 } else
-                      this.assembler.add("_"+ e.getNombre() + " DD 0");
+                      this.assembler.add("_"+ e.getNombre() + " dd 0");
             } else if (e.getTipo()==Tipo.CADENA) {
-                this.assembler.add("_" + e.getNombre() + " DB '" + e.getNombre()+ "', 0");
+                String nombre = getNombreVariableCadena(e);
+                String cadena = e.getNombre().replace("\'", "\"");
+                this.assembler.add(nombre + " db " + cadena + ", 0");
             }
         }
     }
@@ -131,7 +133,7 @@ public class Compilador {
     private void generarCuerpo() {
         // Generación del encabezado
         this.assembler.add(".CODE");
-        this.assembler.add(".start:");
+        this.assembler.add("start:");
         for (punteroPolaca=0;punteroPolaca<this.polaca.size();punteroPolaca++) {
             ElementoPolaca el = this.polaca.get(punteroPolaca);
             switch (el.getTipo()) {
@@ -177,6 +179,8 @@ public class Compilador {
                 case ElementoPolaca.SUMA :
                     this.getAssemblerSuma(this.polaca.get(punteroPolaca-2),this.polaca.get(punteroPolaca-1));
                     break;
+                case ElementoPolaca.ROTULO :
+                    this.assembler.add(this.polaca.get(punteroPolaca).getNombre() + ':');
             }
         }
         // Errores
@@ -212,8 +216,9 @@ public class Compilador {
         return acum;
     }
 
-    private void getAssemblerPrint(ElementoPolaca e) {
-        this.assembler.add("invoke MessageBox, NULL, addr " + e.getNombre() + ", addr " + e.getNombre() + ", MB_OK");
+    private void getAssemblerPrint(ElementoPolaca ep) {
+        Entrada e = tablaSimbolos.get('\'' + ep.getNombre() + '\'');
+        this.assembler.add("invoke MessageBox, NULL, addr " + getNombreVariableCadena(e) + ", addr " + getNombreVariableCadena(e) + ", MB_OK");
     }
 
     private void getAssemblerAsignacion(ElementoPolaca destino, ElementoPolaca origen) {
@@ -412,6 +417,10 @@ public class Compilador {
     private String getNombreVariableEstructura(EntradaEstructura ee) {
         String padre = ee.getEstructura().getNombre();
         return "_" + padre + "_" + ee.getNombre();
+    }
+
+    private String getNombreVariableCadena(Entrada e) {
+        return "_" + e.getNombre().replace(" ", "").replace("\'", "");
     }
     
 }
