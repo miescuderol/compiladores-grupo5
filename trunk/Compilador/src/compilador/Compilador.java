@@ -362,31 +362,6 @@ public class Compilador {
         // Libero EDX y obtengo los operandos
         String salvavidas = "", nom_op2 = "";
         boolean flag = false, flag2 =false;
-        /*if (op1.getTipo()==ElementoPolaca.REGISTRO) {
-            this.bancoRegistros.desocuparRegistro(op1.getNombre());
-        }
-        this.assembler.add("MOV EAX , " + this.getNombreVariable(op1));
-        if (op2.getTipo()==ElementoPolaca.REGISTRO) {
-            if (op2.getNombre().equals("EDX")) {
-                Registro libre = this.bancoRegistros.ocuparRegistroLibre();
-                this.assembler.add("MOV " + libre.getNombre() + " , EDX");
-                nom_op2 = libre.getNombre();
-            } else {
-                nom_op2 = op2.getNombre();
-            }
-        } else {
-            if (this.bancoRegistros.getRegistro("EDX").isOcupado()) {
-                salvavidas = this.bancoRegistros.ocuparRegistroLibre().getNombre();
-                this.assembler.add("MOV " + salvavidas + " , EDX");
-                flag = true;
-            } else {
-                this.bancoRegistros.ocuparRegistro("EDX");
-            }
-            Registro libre = this.bancoRegistros.ocuparRegistroLibre();
-            nom_op2 = libre.getNombre();
-            this.assembler.add("MOV " + nom_op2 + this.getNombreVariable(op2));
-        }*/
-        //---cris
         Registro libre= null, libre2 = null;
         if (op1.getTipo()==ElementoPolaca.REGISTRO) {
             this.bancoRegistros.desocuparRegistro(op1.getNombre());
@@ -444,19 +419,7 @@ public class Compilador {
         }
         libre = this.bancoRegistros.ocuparRegistroLibre();
         this.assembler.add("MOV " + libre.getNombre()+" , EAX");
-        
-        
-        //xx cris
-    /*
-        if (flag) {
-            this.assembler.add("MOV EDX , " + salvavidas);
-            this.bancoRegistros.desocuparRegistro(salvavidas);
-        } else {
-            this.bancoRegistros.desocuparRegistro("EDX");
-        }
-        Registro resultado = this.bancoRegistros.ocuparRegistroLibre();
-        this.assembler.add("MOV " + resultado.getNombre() + " , EAX");*/
-        // Desapilo de la polaca
+
         this.desapilarPolaca(new ElementoPolaca(ElementoPolaca.REGISTRO,op1.getTipo_dato(),libre.getNombre()));
     }
 
