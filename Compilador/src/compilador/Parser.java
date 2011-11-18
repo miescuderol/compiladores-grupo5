@@ -748,7 +748,7 @@ private void controlarTiposFor(){
 
 private void controlarTipoAsignacion(Entrada id){
 	if((id.getTipo_dato() == Tipo.INTEGER) && (tipoExpresion == Tipo.ULONGINT))
-		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
+		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se esperaba un entero");
 	else if (id.getTipo_dato() == Tipo.STRUCT)
 			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
 }
