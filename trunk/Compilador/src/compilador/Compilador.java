@@ -36,8 +36,6 @@ public class Compilador {
             this.analSint.run();
             this.generarAssembler();
             ArrayList<String> salida = new ArrayList<String>();
-            salida.add("Compilando código fuente");
-            salida.add("---------------------------------");
             if(this.assembler != null)
                 salida.add(this.getAssembler());
             String out = "";
@@ -111,7 +109,7 @@ public class Compilador {
         this.assembler.add(".DATA");
         // Generación de errores
         this.assembler.add("ERROR_UNDERFLOW_RESTA DB 'Error: No puede asignarse un resultado negativo a una variable ULONGINT.'");
-        this.assembler.add("ERROR_PERDIDA_PRECISION DB 'Error: Conversión implícita generó pérdida de precisión'");
+        this.assembler.add("ERROR_PERDIDA_PRECISION DB 'Error: Conversion implicita genero perdida de precision'");
         // Generación de elementos de la tabla de símbolos
         IteradorTablaSimbolos it = this.analLex.getTablaSimbolos().iterator();
         while (it.hasNext()) {
@@ -407,7 +405,7 @@ public class Compilador {
         this.condicionFalsa = instruccion;
     }
 
-    private boolean isCompilable() {
+    public boolean isCompilable() {
         return (this.analSint.isCompilable() && this.analLex.getErrores().isEmpty());
     }
 
