@@ -67,12 +67,12 @@ declaracion : tipo lista_variables ';' {
             | lista_variables ';'  { yyerror("declaracion de variable sin tipo definido.");}
             | tipo lista_variables  { yyerror("se esperaba ';'.");}
             | estructura ID { yyerror("se esperaba ';'.");}
+			| error ID ';' {yyerror("tipo primitivo no admitido por el lenguaje.");}
 ;
 
 
 tipo : INTEGER {this.tipo_dato=Tipo.INTEGER;}
      | ULONGINT {this.tipo_dato=Tipo.ULONGINT;}
-     | error {yyerror("tipo primitivo no admitido por el lenguaje.");}
 ;
 
 estructura : STRUCT {yyout("Sentencia de declaracion de estructura"); elemento_estructuras = new ArrayList<String>();} '{' cuerpo_estructura '}'
@@ -176,14 +176,6 @@ condicion :  '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca
 
 		;
 
-expresion : expresion '+' termino {agregarAPolaca(ElementoPolaca.SUMA);yyout("Sentencia de suma.");}
-          | expresion '-' termino {agregarAPolaca(ElementoPolaca.RESTA);yyout("Sentencia de resta.");}
-          | termino
-
-          | expresion '+'  { yyerror("se esperaba un termino luego del '+'.");}
-          | expresion '-'   { yyerror("se esperaba un termino luego del '-'.");}
-
-;
 
 asignacion : ID ASIGN expresion ';' {
                                         Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
@@ -205,6 +197,15 @@ asignacion : ID ASIGN expresion ';' {
            | ID ASIGN expresion error { yyerror("se esperaba ';'.");}
 ;
 
+expresion : expresion '+' termino {agregarAPolaca(ElementoPolaca.SUMA);yyout("Sentencia de suma.");}
+          | expresion '-' termino {agregarAPolaca(ElementoPolaca.RESTA);yyout("Sentencia de resta.");}
+          | termino
+
+          | expresion '+'  { yyerror("se esperaba un termino luego del '+'.");}
+          | expresion '-'   { yyerror("se esperaba un termino luego del '-'.");}
+
+;
+
 termino : termino '*' factor {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyout("Sentencia de producto.");}
         | termino '/' factor {agregarAPolaca(ElementoPolaca.DIVISION);yyout("Sentencia de division.");}
         | factor
@@ -219,7 +220,8 @@ factor : factor_comun
 
 factor_comun : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                  estaDeclarada(e);
-				 if(e.getTipo_dato() != Tipo.INTEGER) tipoExpresion = e.getTipo_dato();
+				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
+				 if(e.getTipo_dato() == Tipo.STRUCT) this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura como operando en una expresion");
                  agregarAPolacaId(e);}
            | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                           estaDeclarada(e);
@@ -290,6 +292,7 @@ condicion_for : '(' ID ASIGN factor_for ';' { Entrada e = anaLex.getTablaSimbolo
               | '(' ID ASIGN ';' comparacion_for  { yyerror("se esperaba un identificador o constante despues del operador de asignacion.");}
               | '(' ID error factor_for ';' comparacion_for   { yyerror("se esperaba operador de asignacion.");}
               | '(' ID ASIGN factor_for error comparacion_for  { yyerror("se esperaba ';'.");}
+			  | '(' error ASIGN factor_for ';' comparacion_for { yyerror("se encontro un error antes del operador de asignacion.");}
 ;
 
 comparacion_for : factor_for '>' factor_for ';' {agregarAPolaca(ElementoPolaca.MAYOR);
@@ -310,6 +313,7 @@ decremento_for : {almacenarDecremento = true;} factor_for ')' {almacenarDecremen
 factor_for : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                  estaDeclarada(e);
                  this.elementosDelFor.add(e);
+				 if(e.getTipo_dato() == Tipo.STRUCT) this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura en la condicion del for");
                  agregarAPolacaId(e);}
            | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
                           estaDeclarada(e);
@@ -335,6 +339,7 @@ factor_for : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).get
  				agregarAPolacaConstante(e);
  				}
 			    }
+			| elemento_estructura {this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar estructuras en la condicion del for");}
 ;
 
 impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresion.");
@@ -461,8 +466,6 @@ private void controlarTipoAsignacion(Entrada id){
 		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
 	else if (id.getTipo_dato() == Tipo.STRUCT)
 			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
-	else if (tipoExpresion == Tipo.STRUCT)
-			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura en una expresion");
 }
 
 private void setearTipoElementosEstructuras(Entrada e) {
