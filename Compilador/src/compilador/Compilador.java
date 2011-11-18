@@ -258,7 +258,14 @@ public class Compilador {
     
     
     private void generarCodigoConversionImplicita(ElementoPolaca elementoConflicto) {
-        this.assembler.add("CMP " + this.getNombreVariable(elementoConflicto) + ", 0");
+        String reg = "";
+        if (elementoConflicto.getTipo()==ElementoPolaca.CONSTANTE) {
+            this.assembler.add("MOV EAX , " + elementoConflicto.getNombre());
+            reg = "EAX";
+        } else {
+            reg = this.getNombreVariable(elementoConflicto);
+        }
+        this.assembler.add("CMP " + reg + ", 0");
         this.assembler.add("JL LABEL_ERROR_PERDIDA_PRECISION");
         elementoConflicto.setTipo_dato(Tipo.ULONGINT);
     }
@@ -363,6 +370,8 @@ public class Compilador {
         }
         // Ponemos en 0 EDX (a donde va a parar el resto de la division) por si no hay resto
         this.assembler.add("MOV EDX , 0");
+        // Ocupo EDX
+        this.bancoRegistros.ocuparRegistro("EDX");
         // Preparo el operando 1 en EAX y libero su registro anterior en caso de que haya sido un registro
         this.assembler.add("MOV EAX , " + this.getNombreVariable(op1));
         this.bancoRegistros.ocuparRegistro("EAX");
@@ -389,11 +398,13 @@ public class Compilador {
         // Libero EAX
         this.assembler.add("MOV " + nombreRegistroAuxiliar + " , EAX");
         this.bancoRegistros.desocuparRegistro("EAX");
+        this.bancoRegistros.desocuparRegistro("EDX");
         // Restauro EDX
         if (estabaOcupado) {
             // Restauro
             this.assembler.add("MOV EDX , " + registroSalvavidas.getNombre());
             registroSalvavidas.desocupar();
+            this.bancoRegistros.ocuparRegistro("EDX");
         }
         // Desapilo de la polaca
         this.desapilarPolaca(new ElementoPolaca(ElementoPolaca.REGISTRO,op1.getTipo_dato(),nombreRegistroAuxiliar));
