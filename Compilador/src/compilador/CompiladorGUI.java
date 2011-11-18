@@ -218,7 +218,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
 
         tabbedPane.addTab("Polaca inversa", jPanel5);
 
-        guardarAsm.setText("Guardar asm");
+        guardarAsm.setText("Guardar codigo assembler");
         guardarAsm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 guardarAsmActionPerformed(evt);

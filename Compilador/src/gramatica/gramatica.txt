@@ -125,8 +125,9 @@ seleccion : IF condicion  {apilar(ElementoPolaca.BF);} seleccionThen  {yyout("Co
 
 seleccionThen: THEN bloque {desapilar(1); apilar(ElementoPolaca.BI);agregarRotulo();} seleccionElse
 
-               | error bloque seleccionElse ';' {yyerror("se esperaba un 'then'.");}
-               | THEN seleccionElse ';' {yyerror("se esperaba un bloque luego de la palabra reservada 'then'.");}
+               | error bloque seleccionElse {yyerror("se esperaba un 'then'.");}
+               | THEN seleccionElse {yyerror("se esperaba un bloque luego de la palabra reservada 'then'.");}
+               | error seleccionElse   {yyerror("se esperaba un 'then'.");}
 ;
 
 seleccionElse: ELSE bloque ';' {desapilar(0); agregarRotulo();}
@@ -134,21 +135,23 @@ seleccionElse: ELSE bloque ';' {desapilar(0); agregarRotulo();}
                | error bloque ';' {yyerror("se esperaba un 'else'.");}
                | ELSE ';' {yyerror("se esperaba un bloque luego de la palabra reservada 'else'.");}
                | error ';' {yyerror("falta rama del else");}
+               | ';'   {yyerror("falta rama del else");}
+               | ELSE error {yyerror("falta punto y coma");}
 ;
 
-condicion :  '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.MAYOR);}
+condicion :   '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.MAYOR);}
 			| '(' expresion '<' expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.MENOR);}
 			| '(' expresion COMP_IGUAL expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.IGUAL);}
 			| '(' expresion COMP_DISTINTO expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.DISTINTO);}
 			| '(' expresion COMP_MENOR_IGUAL expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.MENORIGUAL);}
 			| '(' expresion COMP_MAYOR_IGUAL expresion ')'  {yyout("CONDICION");agregarAPolaca(ElementoPolaca.MAYORIGUAL);}
 	
-			|'(' expresion  '>'{yyerror("Falta la expresion derecha de la condicion.");} ')' 
-			|'(' expresion  '<'{yyerror("Falta la expresion derecha de la condicion.");} ')' 
-			|'(' expresion  COMP_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
-			|'(' expresion  COMP_DISTINTO{yyerror("Falta la expresion derecha de la condicion.");} ')'
-			|'(' expresion  COMP_MENOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
-			|'(' expresion  COMP_MAYOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  '>'{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  '<'{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  COMP_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  COMP_DISTINTO{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  COMP_MENOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
+			| '(' expresion  COMP_MAYOR_IGUAL{yyerror("Falta la expresion derecha de la condicion.");} ')'
 			
 			|  '(' expresion '>' expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion '<' expresion {yyerror("Falta ')' al final de la condicion.");}
@@ -156,7 +159,7 @@ condicion :  '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca
 			|  '(' expresion COMP_DISTINTO expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_MENOR_IGUAL expresion {yyerror("Falta ')' al final de la condicion.");}
 			|  '(' expresion COMP_MAYOR_IGUAL expresion {yyerror("Falta ')' al final de la condicion.");}
-			
+
 			|  expresion '>' expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
 			|  expresion '<' expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
 			|  expresion COMP_IGUAL expresion ')' {yyerror("Falta '(' al principio de la condicion.");}
@@ -176,94 +179,6 @@ condicion :  '(' expresion '>' expresion ')'  {yyout("CONDICION");agregarAPolaca
 
 		;
 
-
-asignacion : ID ASIGN expresion ';' {
-                                        Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
-                                        estaDeclarada(e);
-										System.out.println("tipo token de la entrada: " + e.getTipo());
-										controlarTipoAsignacion((Entrada)$1.obj);
-										tipoExpresion = Tipo.INTEGER;
-                                        agregarAPolacaId((Entrada)$1.obj);
-                                        agregarAPolaca(ElementoPolaca.ASIGNACION);
-                                    }
-           | elemento_estructura ASIGN expresion ';'    {yyout("Asignacion a elemento de estructura.");
-														 controlarTipoAsignacion((Entrada)$1.obj);
-														 tipoExpresion = Tipo.INTEGER;
-                                                         agregarAPolacaId(estructuraPolaca);
-                                                         agregarAPolaca(ElementoPolaca.ASIGNACION);}
-
-           | ID  expresion ';'    { yyerror("se esperaba el operador de asignacion ':='.");}
-           | ID ASIGN  ';'        { yyerror("se esperaba una expresion del lado derecho de la asignacion.");}
-           | ID ASIGN expresion error { yyerror("se esperaba ';'.");}
-;
-
-expresion : expresion '+' termino {agregarAPolaca(ElementoPolaca.SUMA);yyout("Sentencia de suma.");}
-          | expresion '-' termino {agregarAPolaca(ElementoPolaca.RESTA);yyout("Sentencia de resta.");}
-          | termino
-
-          | expresion '+'  { yyerror("se esperaba un termino luego del '+'.");}
-          | expresion '-'   { yyerror("se esperaba un termino luego del '-'.");}
-
-;
-
-termino : termino '*' factor {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyout("Sentencia de producto.");}
-        | termino '/' factor {agregarAPolaca(ElementoPolaca.DIVISION);yyout("Sentencia de division.");}
-        | factor
-
-        | termino '*'   { yyerror("se esperaba un factor luego de '*'.");}
-        | termino '/'   { yyerror("se esperaba un factor luego de '/'.");}
-;
-
-factor : factor_comun
-       | elemento_estructura
-;
-
-factor_comun : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
-                 estaDeclarada(e);
-				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
-				 if(e.getTipo_dato() == Tipo.STRUCT) this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura como operando en una expresion");
-                 agregarAPolacaId(e);}
-           | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
-                          estaDeclarada(e);
-						  tipoExpresion = Tipo.ULONGINT;
-                          agregarAPolacaConstante(e);}
-           | CTE_INT       { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
-                             e.visitar();
-                             fueraRangoIntPositivo((Entrada)$1.obj);
-                             agregarAPolacaConstante((Entrada)$1.obj); }
-           | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
-    				if (!(actual).isVisitado()) {
-        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
-        			e.setTipo_dato(Tipo.INTEGER);
-        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
-        			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
- 				agregarAPolacaConstante(e);
-    				} else {
-        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
-        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
- 				agregarAPolacaConstante(e);
- 				}
-			    }
-;
-
-elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");
-                                  Entrada e = (Entrada)$3.obj;
-                                  estructuraPolaca = e;
-                                  Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)val_peek(2).obj).getNombre());
-                                  if(estaDeclarada(e)){
-	                                 EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre()));
-	                                 if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
-	                                    this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
-	                                 }
-                                  } 
-								  $$ = $3;
-                                  }
-
-                    | ID ID    { yyerror("se esperaba un punto.");}
-                    | ID '.'   { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
-                    | '.' ID   { yyerror("se esperaba identificador de la estructura antes del punto.");}
-;
-
 bucle :  FOR  condicion_for bloque ';'   {agregarAPolacaDecremento();
                                          apilar(ElementoPolaca.BI);
                                          desapilarDireccion();
@@ -273,6 +188,7 @@ bucle :  FOR  condicion_for bloque ';'   {agregarAPolacaDecremento();
 
       | FOR condicion_for ';' {yyerror("se esperaba un bloque de sentencias, pero se encontro ';'.");}
       | FOR condicion_for bloque error  { yyerror("se esperaba ';'.");}
+      | FOR condicion_for error {yyerror("se esperaba finalizacion de bloque del for.");}
 ;
 
 
@@ -339,7 +255,8 @@ factor_for : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).get
  				agregarAPolacaConstante(e);
  				}
 			    }
-			| elemento_estructura {this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar estructuras en la condicion del for");}
+           | elemento_estructura {this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar estructuras en la condicion del for");}
+
 ;
 
 impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresion.");
@@ -353,6 +270,95 @@ impresion : PRINT '(' CADENA ')' ';' {yyout("Sentencia de impresion.");
 
           | PRINT '(' CADENA ')' error { yyerror("se esperaba ';.'");}
 ;
+
+asignacion : ID ASIGN expresion ';' {
+                                        Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                                        estaDeclarada(e);
+										System.out.println("tipo token de la entrada: " + e.getTipo());
+										controlarTipoAsignacion((Entrada)$1.obj);
+										tipoExpresion = Tipo.INTEGER;
+                                        agregarAPolacaId((Entrada)$1.obj);
+                                        agregarAPolaca(ElementoPolaca.ASIGNACION);
+                                    }
+           | elemento_estructura ASIGN expresion ';'    {yyout("Asignacion a elemento de estructura.");
+														 controlarTipoAsignacion((Entrada)$1.obj);
+														 tipoExpresion = Tipo.INTEGER;
+                                                         agregarAPolacaId((Entrada)$1.obj);
+                                                         agregarAPolaca(ElementoPolaca.ASIGNACION);}
+
+           | ID  expresion ';'    { yyerror("se esperaba el operador de asignacion ':='.");}
+           | ID ASIGN  ';'        { yyerror("se esperaba una expresion del lado derecho de la asignacion.");}
+           | ID ASIGN  expresion error { yyerror("se esperaba ';'.");}
+;
+
+expresion : expresion '+' termino {agregarAPolaca(ElementoPolaca.SUMA);yyout("Sentencia de suma.");}
+          | expresion '-' termino {agregarAPolaca(ElementoPolaca.RESTA);yyout("Sentencia de resta.");}
+          | termino
+
+          | expresion '+'  { yyerror("se esperaba un termino luego del '+'.");}
+          | expresion '-'   { yyerror("se esperaba un termino luego del '-'.");}
+
+;
+
+termino : termino '*' factor {agregarAPolaca(ElementoPolaca.MULTIPLICACION);yyout("Sentencia de producto.");}
+        | termino '/' factor {agregarAPolaca(ElementoPolaca.DIVISION);yyout("Sentencia de division.");}
+        | factor
+
+        | termino '*'   { yyerror("se esperaba un factor luego de '*'.");}
+        | termino '/'   { yyerror("se esperaba un factor luego de '/'.");}
+;
+
+factor : factor_comun
+       | elemento_estructura   {agregarAPolacaId((Entrada)$1.obj);}
+;
+
+factor_comun : ID {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                 estaDeclarada(e);
+				 if(e.getTipo_dato() == Tipo.ULONGINT) tipoExpresion = Tipo.ULONGINT;
+				 if(e.getTipo_dato() == Tipo.STRUCT) this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se puede utilizar el nombre de una estructura como operando en una expresion");
+                 agregarAPolacaId(e);}
+           | CTE_ULON    {Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                          estaDeclarada(e);
+						  tipoExpresion = Tipo.ULONGINT;
+                          agregarAPolacaConstante(e);}
+           | CTE_INT       { Entrada e = anaLex.getTablaSimbolos().get(((Entrada)$1.obj).getNombre());
+                             e.visitar();
+                             fueraRangoIntPositivo((Entrada)$1.obj);
+                             agregarAPolacaConstante((Entrada)$1.obj); }
+           | '-' CTE_INT   {Entrada actual = anaLex.getTablaSimbolos().get(((Entrada)$2.obj).getNombre());
+    				if (!(actual).isVisitado()) {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(), (Integer) actual.getValor() * -1);
+        			e.setTipo_dato(Tipo.INTEGER);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+        			anaLex.getTablaSimbolos().removeEntrada(((Entrada)($2.obj)).getNombre());
+ 				agregarAPolacaConstante(e);
+    				} else {
+        			Entrada e = new Entrada("-" + actual.getNombre(), actual.getTipo(),(Integer)actual.getValor() * -1);
+        			anaLex.getTablaSimbolos().addNuevaEntrada(e);
+ 				agregarAPolacaConstante(e);
+ 				}
+			    }
+;
+
+elemento_estructura : ID '.' ID  {yyout("Elemento de estructura.");
+                                  Entrada e = (Entrada)$3.obj;
+                                  Entrada ePadre = anaLex.getTablaSimbolos().get(((Entrada)val_peek(2).obj).getNombre());
+                                  if(estaDeclarada(e)){
+	                                 EntradaEstructura eHijo = (EntradaEstructura) (anaLex.getTablaSimbolos().get(((Entrada)val_peek(0).obj).getNombre()));
+	                                 if (!ePadre.getNombre().equals(eHijo.getEstructura().getNombre())) {
+	                                    this.erroresSemanticos.add("En linea: " + anaLex.getNumeroLinea() + " - El identificador " + eHijo.getNombre() + " no pertenece a la estructura " + ePadre.getNombre());
+	                                 }
+                                  } 
+                                  $$ = $3;
+                                  }
+
+                    | ID ID    { yyerror("se esperaba un punto.");}
+                    | ID '.'   { yyerror("se esperaba identificador de la variable mientro de la estructura.");}
+                    | '.' ID   { yyerror("se esperaba identificador de la estructura antes del punto.");}
+;
+
+
+
 
 %%
 
@@ -377,12 +383,12 @@ private ArrayList<Entrada> elementosDelFor;
 
 //para manejo de polaca inversa
 private ArrayList<ElementoPolaca> polacaInversa;
-private Stack<Integer> pila=new Stack();
-private Stack<Integer> retornos=new Stack();
-private Entrada indiceFor;
-private ElementoPolaca decrementoFor;
-private boolean almacenarDecremento = false;
+private Stack<Integer> pila;
+private Stack<Integer> retornos;
+private boolean almacenarDecremento;
 private Entrada estructuraPolaca;
+private Stack<ElementoPolaca> decrementosFor;
+private Stack<Entrada> indicesFor;
 
 public static final int MAX_INTEGER_NEG = 32767;
 public static final int MAX_INTEGER = 32768;
@@ -399,6 +405,11 @@ public Parser(AnalizadorLexico analLex){
   erroresSemanticos = new ArrayList<String>();
   identificadores = new ArrayList<Entrada>();
   tipoExpresion = Tipo.INTEGER;
+  almacenarDecremento = false;
+  decrementosFor=new Stack<ElementoPolaca>();
+  pila=new Stack<Integer>();
+  retornos=new Stack<Integer>();
+  indicesFor=new Stack<Entrada>();
 }
 
 int yylex() {
@@ -463,7 +474,7 @@ private void controlarTiposFor(){
 
 private void controlarTipoAsignacion(Entrada id){
 	if((id.getTipo_dato() == Tipo.INTEGER) && (tipoExpresion == Tipo.ULONGINT))
-		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se eperaba un entero");
+		this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": Incopatibilidad de tipo, se esperaba un entero");
 	else if (id.getTipo_dato() == Tipo.STRUCT)
 			this.erroresSemanticos.add("En linea " + anaLex.getNumeroLinea() + ": no se pueden realizar asignaciones a estructuras");
 }
@@ -509,7 +520,7 @@ private void agregarAPolacaId(Entrada e){
     Tipo t = anaLex.getTablaSimbolos().get(e.getNombre()).getTipo_dato();
     ElementoPolaca ep = new ElementoPolaca(ElementoPolaca.VARIABLE, t,e.getNombre());
     if (almacenarDecremento)
-       decrementoFor = ep;
+       decrementosFor.push(ep);
     else
         polacaInversa.add(ep);
 }
@@ -520,11 +531,11 @@ private void agregarAPolacaConstante(Entrada e){
     ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.INTEGER,e.getValor().toString());
     else
       if(e.getTipo() == Tipo.CONSTANTE_ULONGINT)
-        ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.ULONGINT,e.getValor().toString());
+        ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.ULONGINT,e.getValor().toString().replace(".0", ""));
       else
         ep = new ElementoPolaca(ElementoPolaca.CADENA,e.getValor().toString());
     if(almacenarDecremento)
-        decrementoFor = ep;
+        decrementosFor.push(ep);
     else 
         polacaInversa.add(ep);
 }
@@ -534,15 +545,16 @@ private void agregarAPolaca(int t){
 }
 
 private void agregarAPolacaDecremento(){
-    agregarAPolacaId(indiceFor);
-    polacaInversa.add(decrementoFor);
+    Entrada indice = indicesFor.pop();
+    agregarAPolacaId(indice);
+    polacaInversa.add(decrementosFor.pop());
     polacaInversa.add(new ElementoPolaca(ElementoPolaca.RESTA));
-    agregarAPolacaId(indiceFor);
+    agregarAPolacaId(indice);
     polacaInversa.add(new ElementoPolaca(ElementoPolaca.ASIGNACION));
 }
 
 private void guardarIndiceFor(Entrada e){
-    this.indiceFor = e;
+    this.indicesFor.push(e);
 }
 
 
