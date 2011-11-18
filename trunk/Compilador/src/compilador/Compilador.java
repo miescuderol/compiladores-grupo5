@@ -17,12 +17,13 @@ public class Compilador {
     private Parser analSint;
     private ArrayList<String> assembler;
     private ArrayList<ElementoPolaca> polaca;
-
+    private ArrayList<ElementoPolaca> polaca_original;
     
     // atributos auxiliares para generación de código
     String condicionFalsa;
     private BancoRegistros bancoRegistros;
     private int punteroPolaca;
+    
     
     public Compilador() {
         this.tablaSimbolos = new TablaSimbolos();
@@ -84,10 +85,9 @@ public class Compilador {
     }
     
     public String getPolacaInversa(){
-        ArrayList<ElementoPolaca> pol = this.analSint.getPolacaInversa();
         String polacaInversa = "";
-        for(int i = 0; i < pol.size();i++){
-            polacaInversa = polacaInversa + pol.get(i) + "\n";
+        for(int i = 0; i < this.polaca_original.size();i++){
+            polacaInversa = polacaInversa + this.polaca_original.get(i) + "\n";
         }
         return polacaInversa;
     }
@@ -198,6 +198,7 @@ public class Compilador {
         if (isCompilable()) { // si el código no tiene error
             // Obtengo la polaca inversa y creo el banco de registros
             this.polaca = this.analSint.getPolacaInversa();
+            this.polaca_original = (ArrayList<ElementoPolaca>) (this.polaca.clone());
             this.bancoRegistros = new BancoRegistros();
             // Prepara el código assembler
             this.assembler = new ArrayList<String>();
@@ -360,7 +361,7 @@ public class Compilador {
         // Convierto si es necesario
         this.getAssemblerConversionImplicita(op1, op2);
         // Libero EDX y obtengo los operandos
-        String salvavidas = "", nom_op2 = "";
+        String nom_op2 = "";
         boolean flag = false, flag2 =false;
         Registro libre= null, libre2 = null;
         if (op1.getTipo()==ElementoPolaca.REGISTRO) {
