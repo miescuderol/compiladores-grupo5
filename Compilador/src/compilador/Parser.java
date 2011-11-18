@@ -1091,7 +1091,7 @@ case 14:
 { yyerror("se esperaba ';'.");}
 break;
 case 15:
-//#line 70 "gramatica.txt"
+//#line 72 "gramatica.txt"
 {yyerror("tipo primitivo no admitido por el lenguaje.");}
 break;
 case 16:

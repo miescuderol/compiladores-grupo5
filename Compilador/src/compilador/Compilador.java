@@ -311,8 +311,9 @@ public class Compilador {
         if (op2.getTipo()==ElementoPolaca.REGISTRO) {
             this.bancoRegistros.desocuparRegistro(op2.getNombre());
         }
-        // CONTROL DE UNDERFLOW
-        this.assembler.add("JS LABEL_ERROR_UNDERFLOW_RESTA");
+        // CONTROL DE UNDERFLOW EN CASO DE OPERACION ENTRE ULONGINT
+        if(op1.getTipo_dato() == Tipo.ULONGINT)
+            this.assembler.add("JS LABEL_ERROR_UNDERFLOW_RESTA");
         // Muevo el resultado a un registro libre
         Registro r = this.bancoRegistros.ocuparRegistroLibre();
         this.assembler.add("MOV " + r.getNombre() + " , EAX");
