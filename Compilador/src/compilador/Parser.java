@@ -802,7 +802,7 @@ private void agregarAPolacaConstante(Entrada e){
     ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.INTEGER,e.getValor().toString());
     else
       if(e.getTipo() == Tipo.CONSTANTE_ULONGINT)
-        ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.ULONGINT,e.getValor().toString());
+        ep = new ElementoPolaca(ElementoPolaca.CONSTANTE, Tipo.ULONGINT,e.getValor().toString().replace(".0", ""));
       else
         ep = new ElementoPolaca(ElementoPolaca.CADENA,e.getValor().toString());
     if(almacenarDecremento)
