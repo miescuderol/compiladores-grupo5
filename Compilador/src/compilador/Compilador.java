@@ -32,22 +32,12 @@ public class Compilador {
     public String compilar(Archivo arch) {
         this.analLex = new AnalizadorLexico(arch, this.tablaSimbolos);
         this.analSint = new Parser(this.analLex);
-        // se corre la compilacion
-//        try{
-            this.analSint.run();
-            this.generarAssembler();
-            ArrayList<String> salida = new ArrayList<String>();
-            if(this.assembler != null)
-                salida.add(this.getAssembler());
-            String out = "";
-            for (int i=0;i<salida.size();i++) {
-                out = out + salida.get(i) + "\n";
-            }
-            return out;
-//        }catch(RuntimeException re){
-//            return ("El programa tiene errores");
-//        }
-        
+        this.analSint.run();
+        this.generarAssembler();
+        if(this.isCompilable())
+            return this.getAssembler();
+        else
+            return null;
     }
 
     
@@ -195,10 +185,10 @@ public class Compilador {
     }
     
     private void generarAssembler() {
+        // Obtengo la polaca inversa y creo el banco de registros
+        this.polaca = this.analSint.getPolacaInversa();
+        this.polaca_original = (ArrayList<ElementoPolaca>) (this.polaca.clone());
         if (isCompilable()) { // si el código no tiene error
-            // Obtengo la polaca inversa y creo el banco de registros
-            this.polaca = this.analSint.getPolacaInversa();
-            this.polaca_original = (ArrayList<ElementoPolaca>) (this.polaca.clone());
             this.bancoRegistros = new BancoRegistros();
             // Prepara el código assembler
             this.assembler = new ArrayList<String>();

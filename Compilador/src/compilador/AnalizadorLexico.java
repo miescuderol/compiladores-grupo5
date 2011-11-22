@@ -89,11 +89,11 @@ public class AnalizadorLexico {
         String error = AccionSemantica.getError();
         if (error!=null) {
             this.erroresLexicos.add("Linea " + numeroLinea + ": " + error);
+            return new Token(AccionSemantica.elementoParcial, TablaSimbolos.YYERRCODE); //claro queno esta bien
         }
         if(estadoActual==AnalizadorLexico.TRANSICION_NO_VALIDA) {  
                 return new Token(AccionSemantica.elementoParcial, TablaSimbolos.YYERRCODE); //claro queno esta bien
         }
-        
         return accionActual.getToken(); // Retornamos el token armado
     }
 
