@@ -73,7 +73,7 @@ public class CompiladorGUI extends javax.swing.JFrame {
         guardarAsm = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Diseño de Compiladores I - Trabajo Práctico 1 y 2 - Grupo 5");
+        setTitle("Diseño de Compiladores I - Trabajo Práctico 3 y 4 - Grupo 5");
         setResizable(false);
 
         codigoFuente.setColumns(20);
