@@ -10,13 +10,17 @@
  */
 package compilador;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
@@ -330,12 +334,42 @@ private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             int returnVal = filechooser.showSaveDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
-                    File f = new File(filechooser.getCurrentDirectory() + "\\" + filechooser.getName(filechooser.getSelectedFile()) + ".asm");
+                    String nombreArchivo = filechooser.getSelectedFile().toString();
+                    File f = new File(nombreArchivo + ".asm");
                     FileWriter ff = new FileWriter(f);
                     ff.write(alArchivo);
                     ff.close();
+                    
+                    String comc = "cmd /c .\\masm32\\bin\\ml /SUBSYSTEM:CONSOLE /c /Zd /coff " + nombreArchivo + ".asm";
+                    Process ptasm32 = Runtime.getRuntime().exec(comc);
+                    InputStream is = ptasm32.getInputStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String aux = br.readLine();
+                    while (aux!=null){
+                        System.out.println(aux);
+                        aux = br.readLine();
+                    }
+                    String coml = "cmd /c \\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + nombreArchivo + ".obj";
+                    Process ptlink32 = Runtime.getRuntime().exec(coml);
+                    InputStream is2 = ptlink32.getInputStream();
+                    BufferedReader br2 = new BufferedReader(new InputStreamReader(is2));
+                    String aux2 = br2.readLine();
+                    while (aux2!=null){
+                        System.out.println(aux2);
+                        aux2 = br2.readLine();
+                    }
+                                           
+                    Runtime aplicacion = Runtime.getRuntime();
+                    try {
+                        aplicacion.exec(nombreArchivo + ".exe"); 
+                    } catch (Exception e){
+                        JOptionPane.showMessageDialog(null,"No se pudo generar/ejecutar el exe","Atención",JOptionPane.ERROR_MESSAGE);
+                    }
+                    
+                    
+                    
                 } catch (IOException ex) {
-                    Logger.getLogger(CompiladorGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null,"No se pudo realizar la compilacion del assembler","Atención",JOptionPane.ERROR_MESSAGE);
                 }
             }
             this.guardarAsm.setEnabled(true);
