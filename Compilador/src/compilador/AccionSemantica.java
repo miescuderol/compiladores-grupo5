@@ -18,7 +18,7 @@ public abstract class AccionSemantica {
     protected static TablaSimbolos tablaSimbolos;
     
     public static final int MAX_INTEGER = 32768;
-    public static final float MAX_ULONGINTEGER = 4294967295f;
+    public static final double MAX_ULONGINTEGER = 4294967295d;
     
     
     /*
@@ -101,17 +101,21 @@ public abstract class AccionSemantica {
     public static AccionSemantica chequeoRangoEntero = new AccionSemantica() {
         @Override
         public boolean ejecutar(char recienLeido) {
-            Integer valor = Integer.valueOf(AccionSemantica.elementoParcial);
-            if ((0 <= valor) && (valor <= AccionSemantica.MAX_INTEGER)) { // si está dentro del rango
-                String nombreToken = valor + "i";
-                Entrada e = AccionSemantica.tablaSimbolos.get(nombreToken);
-                if (e==null) {
-                    e = new Entrada(nombreToken, Tipo.CONSTANTE_INTEGER, valor);
-                    e.setTipo_dato(Tipo.INTEGER);
-                    AccionSemantica.tablaSimbolos.addNuevaEntrada(e);
+            if(AccionSemantica.elementoParcial.length() < 6){
+                Integer valor = Integer.valueOf(AccionSemantica.elementoParcial);
+                if ((0 <= valor) && (valor <= AccionSemantica.MAX_INTEGER)) { // si está dentro del rango
+                    String nombreToken = valor + "i";
+                    Entrada e = AccionSemantica.tablaSimbolos.get(nombreToken);
+                    if (e==null) {
+                        e = new Entrada(nombreToken, Tipo.CONSTANTE_INTEGER, valor);
+                        e.setTipo_dato(Tipo.INTEGER);
+                        AccionSemantica.tablaSimbolos.addNuevaEntrada(e);
+                    }
+                    AccionSemantica.token = new TokenConAtributo(nombreToken,AccionSemantica.tablaSimbolos.getCodigoYacc(nombreToken), e);
+                } else { // si no está dentro del rango
+                    AccionSemantica.error = "Entero fuera del rango [-32768;32767]";
                 }
-                AccionSemantica.token = new TokenConAtributo(nombreToken,AccionSemantica.tablaSimbolos.getCodigoYacc(nombreToken), e);
-            } else { // si no está dentro del rango
+            } else {
                 AccionSemantica.error = "Entero fuera del rango [-32768;32767]";
             }
             return false;
@@ -122,12 +126,12 @@ public abstract class AccionSemantica {
     public static AccionSemantica chequeoRangoEnteroLargoSinSigno = new AccionSemantica() {
         @Override
         public boolean ejecutar(char recienLeido) {
-            float valor = Float.valueOf(AccionSemantica.elementoParcial);
+            double valor = Double.valueOf(AccionSemantica.elementoParcial);
             if ((0 <= valor) && (valor <= AccionSemantica.MAX_ULONGINTEGER)) { // si está dentro del rango
-                String nombreToken = valor + "ul";
+                String nombreToken = AccionSemantica.elementoParcial + "ul";
                 Entrada e = AccionSemantica.tablaSimbolos.get(nombreToken);
                 if (e==null) {
-                    e = new Entrada(nombreToken, Tipo.CONSTANTE_ULONGINT, valor);
+                    e = new Entrada(nombreToken, Tipo.CONSTANTE_ULONGINT, AccionSemantica.elementoParcial);
                     e.setTipo_dato(Tipo.ULONGINT);
                     AccionSemantica.tablaSimbolos.addNuevaEntrada(e);
                 }
